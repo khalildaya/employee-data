@@ -8,6 +8,12 @@ const fs = require("fs-extra");
 // an npm package to lock files since we are not using a database
 const lockFile = require('proper-lockFile');
 
+// Setting a default lock file options
+// more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
+const defaultLockFileOptions = {
+	stale: 5000, // consider the lock stale after 5 seconds
+	retries: 5, // try 5 times to acquire a lock on a locked resource
+}
 const {
 	employeeDataFolder,
 	employeeIdsFile,
@@ -16,8 +22,8 @@ const {
 // Initialize employee ids file
 initEmployeeIdsFile(employeeIdsFile);
 
-// Make sure employee data folder exists
-fs.ensureDirSync(employeeDataFolder);
+// Initialize employee data folder
+initEmployeesDataFolder(employeeDataFolder);
 
 const IRepository = require("../IRepository");
 
@@ -47,13 +53,28 @@ Employee.prototype = Object.create(IRepository.prototype);
 Employee.prototype.constructor = Employee;
 
 /**
+ * Initialize employees data folder and ids file
+*/
+Employee.prototype.init = async function() {
+	await initEmployeeIdsFile(employeeIdsFile);
+	initEmployeesDataFolder(employeeDataFolder);
+}
+/**
  * Below the methods of IRepository interface are implemented in Employee class
 */
 
 Employee.prototype.create = function() {
+	// lock employee ids file to get the next auto-increment for the id
 	lockFile.lock(employeeIdsFile)
 	.then((release) => {
-			return release();
+		// get last auto-increment id
+		const {
+			value,
+		} = fs.readJSONSync(employeeIdsFile);
+		this.id = value + 1;
+		fs.writeJSONSync(`${employeeDataFolder}/${this.id}.json`, this);
+		fs.writeJSONSync(employeeIdsFile, {value: this.id});
+		return release();
 	})
 	.catch((e) => {
 			console.error("Error acquiring/releasing lock on employee ids file", e);
@@ -78,18 +99,27 @@ Employee.prototype.list = function() {
 	return true;
 }
 
-function initEmployeeIdsFile(employeeIdsFile) {
+/**
+ * Makes sure there is an employee ids file from which the auto-increment
+ * id of employees is retrieved. If ids file does not exist, creates it and
+ * initializes the auto-increment value to 0 
+ * @param {string} file path of employee ids file,
+ * where the auto-increment value of employee id is retrieved from
+ * @return {Promise} promise returned by releasing locked file
+ * more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
+ */
+async function initEmployeeIdsFile(file) {
 	// Make sure employee ids data file exists
-	fs.ensureFileSync(employeeIdsFile);
+	fs.ensureFileSync(file);
 
-	// Lock the ids file to initialize it if needed
-	lockFile.lock(employeeIdsFile)
-	.then((release) => {
+	try {
+		// Lock the ids file to initialize it if needed
+		const release = await lockFile.lock(file, defaultLockFileOptions);
 		let id = {
 			value: 0,
 		}
 		try {
-			fs.readJSONSync(employeeIdsFile);
+			fs.readJSONSync(file);
 			return release();
 		} catch (error) {
 			/**
@@ -97,13 +127,20 @@ function initEmployeeIdsFile(employeeIdsFile) {
 			 * content is not in json format or file is still empty.
 			 * Either way we have to initialize the file
 			*/
-			fs.writeJSONSync(employeeIdsFile, id);
+			fs.writeJSONSync(file, id);
 			return release();
 		}
-	})
-	.catch((e) => {
-			console.error("Error acquiring/releasing lock on employee ids file", e);
-			// Force unlocking the file
-			return lockFile.unlock(employeeIdsFile);
-	});
+	} catch (error) {
+		console.error("Error acquiring/releasing lock on employee ids file", error);
+		// Force unlocking the file
+		return lockFile.unlock(file);
+	}
+}
+
+/**
+ * Makes sure employees folder exists
+ * @param {string} folder path in which employee data will be stored 
+ */
+function initEmployeesDataFolder(folder) {
+	fs.ensureDirSync(folder);
 }
