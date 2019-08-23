@@ -1,0 +1,27 @@
+{
+  "name": "employee-data",
+  "version": "1.0.0",
+  "description": "Repository of employees",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khalildaya/employee-data.git"
+  },
+  "author": "Khalil Daya",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khalildaya/employee-data/issues"
+  },
+  "homepage": "https://github.com/khalildaya/employee-data#readme",
+  "dependencies": {
+    "ajv": "^6.10.2",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "helmet": "^3.20.0",
+    "jest": "^24.9.0"
+  }
+}
