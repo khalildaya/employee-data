@@ -21,31 +21,37 @@ function IRepository() {
 
 const ERRORS = require("./errors");
 
-IRepository.prototype.create = function() {
+/**
+ * Creates an item.
+ * @param {object} item object holding item properties
+ * @return {Promise} On success, returns resolved promise holding
+ * item's auto-incremented id. On failure, returns a rejected promise.
+*/
+IRepository.prototype.create = async function(item) {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "create",
 	});
 }
 
-IRepository.prototype.read = function() {
+IRepository.prototype.read = async function() {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "read",
 	});
 }
 
-IRepository.prototype.update = function() {
+IRepository.prototype.update = async function() {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "update",
 	});
 }
 
-IRepository.prototype.delete = function() {
+IRepository.prototype.delete = async function() {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "delete",
 	});
 }
 
-IRepository.prototype.list = function() {
+IRepository.prototype.list = async function() {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "list",
 	});

@@ -1,26 +1,22 @@
 "use strict";
 
 /**
- * A module defining the EmployeeService class which implements IRepository interface 
+ * A module defining the EmployeeService class which implements IRepository interface
 */
+
 const fs = require("fs-extra");
 
 // an npm package to lock files since we are not using a database
 const lockFile = require('proper-lockFile');
-
-// Setting a default lock file options
-// more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
-const defaultLockFileOptions = {
-	stale: 5000, // consider the lock stale after 5 seconds
-	retries: 5, // try 5 times to acquire a lock on a locked resource
-}
-const {
-	employeeDataFolder,
-	employeeIdsFile,
-} = require("../config");
 const ERRORS = require("./errors");
-
+const {
+	NUMBERS,
+} = require("../constants");
 const IRepository = require("../IRepository");
+
+let _employeeIdsFile = "";
+let _employeeDataFolder = "";
+let _defaultLockFileOptions = {};
 
 module.exports = EmployeeService;
 
@@ -45,40 +41,86 @@ EmployeeService.prototype.constructor = EmployeeService;
 /**
  * Initialize EmployeeServices data folder and ids file
 */
-EmployeeService.prototype.init = async function() {
-	await initEmployeeIdsFile(employeeIdsFile);
-	initEmployeeDataFolder(employeeDataFolder);
+EmployeeService.prototype.init = async function(config) {
+	_employeeIdsFile = config.employeeIdsFile;
+	_employeeDataFolder = config.employeeDataFolder;
+	// Setting a default lock file options
+	// more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
+	_defaultLockFileOptions = config.defaultLockFileOptions;
+	await initEmployeeIdsFile(config.employeeIdsFile);
+	initEmployeeDataFolder(config.employeeDataFolder);
 }
 /**
- * Below the methods of IRepository interface are implemented in EmployeeService class
+ * Below the methods of IRepository interface implemented in EmployeeService class
 */
 
-EmployeeService.prototype.create = function() {
-	// lock EmployeeService ids file to get the next auto-increment for the id
-	lockFile.lock(employeeIdsFile)
-	.then((release) => {
+/**
+ * Creates an employee.
+ * @param {object} employee object holding employee properties
+ * @return {Promise} On success, returns resolved promise holding
+ * employee's auto-incremented id. On failure, returns a rejected promise.
+*/
+EmployeeService.prototype.create = async function(employee) {
+	// Try to lock employee ids file to get the next auto-increment for the id
+	let release = null;
+	try {
+		release = await lockFile.lock(_employeeIdsFile);
+	} catch (error) {
+		throw Object.assign(ERRORS.EMPLOYEE_IDS_NO_LOCK, {
+			details: {
+				error,
+			}
+		});
+	}
+	try {
 		// get last auto-increment id
 		const {
 			value,
-		} = fs.readJSONSync(employeeIdsFile);
-		this.id = value + 1;
-		fs.writeJSONSync(`${employeeDataFolder}/${this.id}.json`, this);
-		fs.writeJSONSync(employeeIdsFile, {value: this.id});
+		} = await fs.readJSON(_employeeIdsFile);
+
+		// Assign auto-increment id to employee
+		employee.id = value + NUMBERS.ONE;
+
+		// Create employee file i.e. store employee
+		await fs.writeJSON(`${_employeeDataFolder}/${employee.id}.json`, employee);
+
+		// Set last used employee id to current employee id
+		await fs.writeJSON(_employeeIdsFile, {value: employee.id});
 		return release();
-	})
-	.catch((e) => {
-			console.error("Error acquiring/releasing lock on EmployeeService ids file", e);
-			return lockFile.unlock(employeeIdsFile);
-	});
-	return true;
+	} catch (error) {
+		// Unlock ids file
+		await lockFile.unlock(_employeeIdsFile);
+		throw Object.assign(ERRORS.CREATE_EMPLOYEE_ERROR, {
+			details: {
+				error,
+			}
+		});
+	}
 }
 
 EmployeeService.prototype.read = function() {
 	return true;
 }
 
-EmployeeService.prototype.update = function() {
-	return true;
+EmployeeService.prototype.update = async function(employee) {
+	const file = `${_employeeDataFolder}/${employee.id}.json`;
+	try {
+		// lock employee file to update employee
+		const release = await lockFile.lock(file);
+
+		// Update employee file
+		await fs.writeJSON(`${_employeeDataFolder}/${employee.id}.json`, employee);
+
+		return release();
+	} catch (error) {
+		// Unlock ids file
+		await lockFile.unlock(file);
+		throw Object.assign(ERRORS.UPDATE_EMPLOYEE_ERROR, {
+			details: {
+				error,
+			}
+		});
+	}
 }
 
 EmployeeService.prototype.delete = function() {
@@ -104,7 +146,7 @@ async function initEmployeeIdsFile(file) {
 		fs.ensureFileSync(file);
 
 		// Lock the ids file to initialize it if needed
-		const release = await lockFile.lock(file, defaultLockFileOptions);
+		const release = await lockFile.lock(file, _defaultLockFileOptions);
 		let id = {
 			value: 0,
 		}
@@ -123,7 +165,7 @@ async function initEmployeeIdsFile(file) {
 	} catch (error) {
 		// Force unlocking the file but still throw an error to the outer scope
 		// since application cannot start up if ids file could not be initialized
-		lockFile.unlock(file);
+		await lockFile.unlock(file);
 
 		throw Object.assign(ERRORS.INIT_EmployeeService_IDS_ERROR, {
 			details: {

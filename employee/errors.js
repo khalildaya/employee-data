@@ -12,5 +12,13 @@ module.exports = Object.freeze({
 	CREATE_EMPLOYEE_ERROR: {
 		code: `${ERRORS_PREFIX}${NUMBERS.TWO}`,
 		message: "Error while creating employee",
+	},
+	UPDATE_EMPLOYEE_ERROR: {
+		code: `${ERRORS_PREFIX}${NUMBERS.TWO}`,
+		message: "Error while updating employee",
+	},
+	EMPLOYEE_IDS_NO_LOCK: {
+		code: `${ERRORS_PREFIX}${NUMBERS.THREE}`,
+		message: "Unable to acquire lock on employee ids file",
 	}
 });
