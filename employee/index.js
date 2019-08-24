@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * A module defining the Employee class which implements IRepository interface 
+ * A module defining the EmployeeService class which implements IRepository interface 
 */
 const fs = require("fs-extra");
 
@@ -18,53 +18,43 @@ const {
 	employeeDataFolder,
 	employeeIdsFile,
 } = require("../config");
-
-// Initialize employee ids file
-initEmployeeIdsFile(employeeIdsFile);
-
-// Initialize employee data folder
-initEmployeesDataFolder(employeeDataFolder);
+const ERRORS = require("./errors");
 
 const IRepository = require("../IRepository");
 
-module.exports = Employee;
+module.exports = EmployeeService;
 
 /**
- * Employee class which will implement the IRepository interface
+ * EmployeeService class which will implement the IRepository interface
  */
-function Employee(fullName, age, cityCode, salary, email) {
+function EmployeeService() {
 	IRepository.call(this);
-	this.age = age;
-	this.fullName = fullName;
-	this.cityCode = cityCode;
-	this.salary = salary;
-	this.email = email;
 }
 
 /**
- * Since JavaScript uses prototypical inheritance, Employee class implements IRepository by
- * assigning the prototype of IRepository to Employee. However that overrides the prototype constructor
- * of Employee to be IRepository function which should not be the case,
- * so we'll set the constructor of Employee prototype back to Employee function.
+ * Since JavaScript uses prototypical inheritance, EmployeeService class implements IRepository by
+ * assigning the prototype of IRepository to EmployeeService. However that overrides the prototype constructor
+ * of EmployeeService to be IRepository function which should not be the case,
+ * so we'll set the constructor of EmployeeService prototype back to EmployeeService function.
  * The following code illustrates this
  * more details at https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Inheritance
 */
-Employee.prototype = Object.create(IRepository.prototype);
-Employee.prototype.constructor = Employee;
+EmployeeService.prototype = Object.create(IRepository.prototype);
+EmployeeService.prototype.constructor = EmployeeService;
 
 /**
- * Initialize employees data folder and ids file
+ * Initialize EmployeeServices data folder and ids file
 */
-Employee.prototype.init = async function() {
+EmployeeService.prototype.init = async function() {
 	await initEmployeeIdsFile(employeeIdsFile);
-	initEmployeesDataFolder(employeeDataFolder);
+	initEmployeeDataFolder(employeeDataFolder);
 }
 /**
- * Below the methods of IRepository interface are implemented in Employee class
+ * Below the methods of IRepository interface are implemented in EmployeeService class
 */
 
-Employee.prototype.create = function() {
-	// lock employee ids file to get the next auto-increment for the id
+EmployeeService.prototype.create = function() {
+	// lock EmployeeService ids file to get the next auto-increment for the id
 	lockFile.lock(employeeIdsFile)
 	.then((release) => {
 		// get last auto-increment id
@@ -77,42 +67,42 @@ Employee.prototype.create = function() {
 		return release();
 	})
 	.catch((e) => {
-			console.error("Error acquiring/releasing lock on employee ids file", e);
+			console.error("Error acquiring/releasing lock on EmployeeService ids file", e);
 			return lockFile.unlock(employeeIdsFile);
 	});
 	return true;
 }
 
-Employee.prototype.read = function() {
+EmployeeService.prototype.read = function() {
 	return true;
 }
 
-Employee.prototype.update = function() {
+EmployeeService.prototype.update = function() {
 	return true;
 }
 
-Employee.prototype.delete = function() {
+EmployeeService.prototype.delete = function() {
 	return true;
 }
 
-Employee.prototype.list = function() {
+EmployeeService.prototype.list = function() {
 	return true;
 }
 
 /**
- * Makes sure there is an employee ids file from which the auto-increment
- * id of employees is retrieved. If ids file does not exist, creates it and
+ * Makes sure there is an EmployeeService ids file from which the auto-increment
+ * id of EmployeeServices is retrieved. If ids file does not exist, creates it and
  * initializes the auto-increment value to 0 
- * @param {string} file path of employee ids file,
- * where the auto-increment value of employee id is retrieved from
+ * @param {string} file path of EmployeeService ids file,
+ * where the auto-increment value of EmployeeService id is retrieved from
  * @return {Promise} promise returned by releasing locked file
  * more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
  */
 async function initEmployeeIdsFile(file) {
-	// Make sure employee ids data file exists
-	fs.ensureFileSync(file);
-
 	try {
+		// Make sure EmployeeService ids data file exists
+		fs.ensureFileSync(file);
+
 		// Lock the ids file to initialize it if needed
 		const release = await lockFile.lock(file, defaultLockFileOptions);
 		let id = {
@@ -131,16 +121,22 @@ async function initEmployeeIdsFile(file) {
 			return release();
 		}
 	} catch (error) {
-		console.error("Error acquiring/releasing lock on employee ids file", error);
-		// Force unlocking the file
-		return lockFile.unlock(file);
+		// Force unlocking the file but still throw an error to the outer scope
+		// since application cannot start up if ids file could not be initialized
+		lockFile.unlock(file);
+
+		throw Object.assign(ERRORS.INIT_EmployeeService_IDS_ERROR, {
+			details: {
+				error,
+			}
+		});
 	}
 }
 
 /**
- * Makes sure employees folder exists
- * @param {string} folder path in which employee data will be stored 
+ * Makes sure EmployeeServices folder exists
+ * @param {string} folder path in which EmployeeService data will be stored 
  */
-function initEmployeesDataFolder(folder) {
+function initEmployeeDataFolder(folder) {
 	fs.ensureDirSync(folder);
 }
