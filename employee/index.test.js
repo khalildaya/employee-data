@@ -275,4 +275,40 @@ describe("EmployeeService", () => {
 			});
 		}
 	});
+
+	test("Throws an error when trying to lock employee file to delete employee", async () => {
+		let release = null;
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+
+			// Simulate creating an employee
+			const employee = {
+				fullName: "Bat man",
+			};
+			const id = await employeeService.create(employee);
+			expect(id).toEqual(1);
+
+			//acquire a lock on employee file
+			release = await lockFile.lock(`${config.employeeDataFolder}/1.json`);
+			
+			await employeeService.delete(1);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			await release();
+			expect(error).toMatchObject({
+				"code": "EMP3",
+				"message": "Unable to acquire file lock",
+				"details": {
+					"file": expect.stringContaining("/test-data/employees/1.json"),
+					"error": {
+						"code": "ELOCKED",						
+						"file": expect.stringContaining("\\test-data\\employees\\1.json"),
+					}
+				}
+			});
+		}
+	});
 });

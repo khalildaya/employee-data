@@ -169,12 +169,12 @@ EmployeeService.prototype.delete = async function(employeeId) {
 			}
 		});
 	}
-	const file = `${_employeeDataFolder}/${employee.id}.json`;
+	const file = `${_employeeDataFolder}/${employeeId}.json`;
 	// lock employee file to delete employee
 	let release = await acquireFileLock(file);
 	try {
 		// Delete employee file
-		await fs.remove(`${_employeeDataFolder}/${employee.id}.json`);
+		await fs.remove(`${_employeeDataFolder}/${employeeId}.json`);
 
 		await release();
 		return true;
