@@ -201,7 +201,6 @@ describe("EmployeeService", () => {
 				fullName: "Bat man",
 			};
 			const id = await employeeService.create(employee);
-			console.log(id);
 			expect(id).toEqual(1);
 
 			//acquire a lock on employee file
@@ -226,5 +225,36 @@ describe("EmployeeService", () => {
 				}
 			});
 		}
+	});
+
+	test("Successfully updates an employee", async () => {
+		const employeeService = new EmployeeService();
+		await employeeService.init(config);
+		await employeeService.create({
+			fullName: "Iron man"
+		});
+		await employeeService.create({
+			fullName: "Bat man",
+			Age: 40,
+		});
+		await employeeService.create({
+			fullName: "Super man"
+		});
+		await employeeService.create({
+			fullName: "Wonder woman"
+		});
+		const employee = {
+			id:2,
+			fullName: "Bat man",
+			age: 140,
+		};
+		const isUpdated = await employeeService.update(employee);
+		expect(isUpdated).toBeTruthy();
+		const updatedEmployee = await employeeService.read(2);
+		expect(updatedEmployee).toMatchObject({
+			id: 2,
+			fullName: "Bat man",
+			age: 140,
+		});
 	});
 });
