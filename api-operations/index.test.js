@@ -9,7 +9,8 @@ const config = {
 	defaultLockFileOptions: {
 		stale: 20000, // consider the lock stale after 5 seconds
 		retries: 0, // try 5 times to acquire a lock on a locked resource
-	}
+	},
+	apiRootPath: "/",
 };
 
 describe("EmployeeService", () => {
@@ -50,6 +51,34 @@ describe("EmployeeService", () => {
 						"code": "ELOCKED",
 						"file": expect.stringContaining("\\test-data\\ids.json"),
 					}
+				}
+			});
+		}
+	});
+
+	test("Throws an error when creating an employee with an already existing id", async () => {
+		try {
+			await apiOperations.init(config);
+
+			// Simulate creating an employee
+			fs.createFileSync(`${config.employeeDataFolder}/1.json`);
+			
+			// try to create an employee which will have id 1
+			await apiOperations.executeOperation("post-/employee", {
+				fullName: "Iron man"
+			});
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			// Remove the file used to simulate creating an employee
+			fs.removeSync(`${config.employeeDataFolder}/1.json`);
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"code": "EMP5",
+				"message": "Employee already exists",
+				"details": {
+					"id": 1
 				}
 			});
 		}
