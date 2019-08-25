@@ -259,7 +259,7 @@ async function initEmployeeIdsFile(file) {
 		}
 		try {
 			fs.readJSONSync(file);
-			return release();
+			await release();
 		} catch (error) {
 			/**
 			 * If reading the json failed, that means either
@@ -267,7 +267,7 @@ async function initEmployeeIdsFile(file) {
 			 * Either way we have to initialize the file
 			*/
 			fs.writeJSONSync(file, id);
-			return release();
+			await release();
 		}
 	} catch (error) {
 		// Force unlocking the file but still throw an error to the outer scope
