@@ -260,4 +260,24 @@ describe("EmployeeService", () => {
 			});
 		}
 	});
+
+	test("Successfully creates an employee", async () => {
+		await apiOperations.init(config);
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Iron man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Super man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Wonder woman"
+		});
+
+		const employee = await apiOperations.executeOperation("get-/employee", 3);
+		
+		expect(employee).toEqual({
+			id: 3,
+			fullName: "Wonder woman"
+		});
+	});
 });
