@@ -4,8 +4,8 @@ const lockFile = require('proper-lockFile');
 const apiOperations = require("./index");
 
 const config = {
-	employeeDataFolder: `${__dirname}/../test-data/employees`,
-	employeeIdsFile: `${__dirname}/../test-data/ids.json`,
+	employeeDataFolder: `${__dirname}/../api-test-data/employees`,
+	employeeIdsFile: `${__dirname}/../api-test-data/ids.json`,
 	defaultLockFileOptions: {
 		stale: 20000, // consider the lock stale after 5 seconds
 		retries: 0, // try 5 times to acquire a lock on a locked resource
@@ -28,7 +28,7 @@ describe("EmployeeService", () => {
 		// Delete test data folder
     fs.removeSync(config.employeeDataFolder + "/../");
 	});
-	test("Throws an error when unable to acquire a lock on while initializing API operations", async () => {
+	test("Throws an error when unable to acquire a lock while initializing API operations", async () => {
 		let release = "";
 		try {
 			//acquire a lock on employee ids file
@@ -45,11 +45,11 @@ describe("EmployeeService", () => {
 				"message": "Unable to acquire file lock",
 				"details": {
 					// Current directory full path will differ on different machines
-					// as a result expecting only path to contain "test-data\ids.json"
-					"file": expect.stringContaining("/test-data/ids.json"),
+					// as a result expecting only path to contain "api-test-data\ids.json"
+					"file": expect.stringContaining("/api-test-data/ids.json"),
 					"error": {
 						"code": "ELOCKED",
-						"file": expect.stringContaining("\\test-data\\ids.json"),
+						"file": expect.stringContaining("\\api-test-data\\ids.json"),
 					}
 				}
 			});
@@ -79,6 +79,40 @@ describe("EmployeeService", () => {
 				"message": "Employee already exists",
 				"details": {
 					"id": 1
+				}
+			});
+		}
+	});
+
+	test("Throws an error when unable to acquire a lock while executing create employee API operation", async () => {
+		let release = "";
+		try {
+			await apiOperations.init(config);
+
+			//acquire a lock on employee ids file
+			release = await lockFile.lock(config.employeeIdsFile);
+
+			// try to create an employee
+			await apiOperations.executeOperation("post-/employee", {
+				fullName: "Spider man"
+			});
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			// Unlock employee ids file
+			await release();
+			expect(error).toMatchObject({
+				"code": "EMP3",
+				"message": "Unable to acquire file lock",
+				"details": {
+					// Current directory full path will differ on different machines
+					// as a result expecting only path to contain "api-test-data\ids.json"
+					"file": expect.stringContaining("/api-test-data/ids.json"),
+					"error": {
+						"code": "ELOCKED",
+						"file": expect.stringContaining("\\api-test-data\\ids.json"),
+					}
 				}
 			});
 		}
