@@ -28,7 +28,7 @@ describe("EmployeeService", () => {
     fs.removeSync(config.employeeDataFolder + "/../");
 	});
 	test("Throws an error when unable to acquire a lock on while initializing EmployeeService", async () => {
-		let release = "";
+		let release = null;
 		try {
 			//acquire a lock on employee ids file
 			release = await lockFile.lock(config.employeeIdsFile);
@@ -56,7 +56,7 @@ describe("EmployeeService", () => {
 		}
 	});
 	test("Throws an error when unable to acquire a lock on id files", async () => {
-		let release = "";
+		let release = null;
 		try {
 			const employeeService = new EmployeeService();
 			await employeeService.init(config);

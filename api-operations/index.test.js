@@ -29,7 +29,7 @@ describe("EmployeeService", () => {
     fs.removeSync(config.employeeDataFolder + "/../");
 	});
 	test("Throws an error when unable to acquire a lock while initializing API operations", async () => {
-		let release = "";
+		let release = null;
 		try {
 			//acquire a lock on employee ids file
 			release = await lockFile.lock(config.employeeIdsFile);
@@ -85,7 +85,7 @@ describe("EmployeeService", () => {
 	});
 
 	test("Throws an error when unable to acquire a lock while executing create employee API operation", async () => {
-		let release = "";
+		let release = null;
 		try {
 			await apiOperations.init(config);
 
@@ -159,6 +159,46 @@ describe("EmployeeService", () => {
 					"id": 124
 				},
 				"statusCode": 404
+			});
+		}
+	});
+
+	test("Throws an error when unable to acquire a lock while executing update employee API operation", async () => {
+		let release = null;
+		let employeeId = -1;
+		try {
+			await apiOperations.init(config);
+
+			// create an employee
+			employeeId = await apiOperations.executeOperation("post-/employee", {
+				fullName: "Spider man"
+			});
+
+			//acquire a lock on employee file
+			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
+
+			// try to update an employee
+			await apiOperations.executeOperation("put-/employee", {
+				id: employeeId,
+				fullName: "Bat man"
+			});
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			// Unlock employee ids file
+			await release();
+			expect(error).toMatchObject({
+				"code": "EMP3",
+				"message": "Unable to acquire file lock",
+				"details": {
+					"file": expect.stringContaining(`/api-test-data/employees/${employeeId}.json`),
+					"error": {
+						"code": "ELOCKED",
+						"file": expect.stringContaining(`\\api-test-data\\employees\\${employeeId}.json`),
+					}
+				},
+				"statusCode": 500
 			});
 		}
 	});
