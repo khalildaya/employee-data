@@ -369,6 +369,45 @@ describe("EmployeeService", () => {
 				}
 			});
 		}
-	
+	});
+
+	test("Successfully lists all employees", async () => {
+		await apiOperations.init(config);
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Iron man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Super man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Wonder woman"
+		});
+
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Thor"
+		});
+
+		await apiOperations.executeOperation("delete-/employee", 2);
+		
+		let employees = await apiOperations.executeOperation("get-/employees");
+		expect(employees).toMatchObject([
+			{
+				id: 1,
+				fullName: "Iron man"
+			},
+			{
+				id: 3,
+				fullName: "Wonder woman"
+			},
+			{
+				id: 4,
+				fullName: "Thor"
+			}
+		]);
+		await apiOperations.executeOperation("delete-/employee", 1);
+		await apiOperations.executeOperation("delete-/employee", 3);
+		await apiOperations.executeOperation("delete-/employee", 4);
+		employees = await apiOperations.executeOperation("get-/employees");
+		expect(employees).toMatchObject([]);
 	});
 });
