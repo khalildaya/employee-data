@@ -117,4 +117,25 @@ describe("EmployeeService", () => {
 			});
 		}
 	});
+
+	test("Throws an error when trying to retrieve a non-existing employee", async () => {
+		try {
+			await apiOperations.init(config);
+			
+			// try to create an employee which will have id 1
+			await apiOperations.executeOperation("get-/employee", 34);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 34
+				},
+				"statusCode": 404
+			});
+		}
+	});
 });
