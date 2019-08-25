@@ -143,7 +143,7 @@ describe("EmployeeService", () => {
 		try {
 			await apiOperations.init(config);
 			
-			// try to create an employee which will have id 1
+			// try to update an employee with id 124
 			await apiOperations.executeOperation("put-/employee", {
 				id: 124,
 				fullName: "Spider man"
@@ -182,6 +182,64 @@ describe("EmployeeService", () => {
 				id: employeeId,
 				fullName: "Bat man"
 			});
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			// Unlock employee ids file
+			await release();
+			expect(error).toMatchObject({
+				"code": "EMP3",
+				"message": "Unable to acquire file lock",
+				"details": {
+					"file": expect.stringContaining(`/api-test-data/employees/${employeeId}.json`),
+					"error": {
+						"code": "ELOCKED",
+						"file": expect.stringContaining(`\\api-test-data\\employees\\${employeeId}.json`),
+					}
+				},
+				"statusCode": 500
+			});
+		}
+	});
+
+	test("Throws an error when trying to delete a non-existing employee", async () => {
+		try {
+			await apiOperations.init(config);
+			
+			// try to create an employee which will have id 1
+			await apiOperations.executeOperation("delete-/employee", 36);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 36
+				},
+				"statusCode": 404
+			});
+		}
+	});
+
+	test("Throws an error when unable to acquire a lock while executing delete employee API operation", async () => {
+		let release = null;
+		let employeeId = -1;
+		try {
+			await apiOperations.init(config);
+
+			// create an employee
+			employeeId = await apiOperations.executeOperation("post-/employee", {
+				fullName: "Spider man"
+			});
+
+			//acquire a lock on employee file
+			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
+
+			// try to delete an employee
+			await apiOperations.executeOperation("delete-/employee", employeeId);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();

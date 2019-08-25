@@ -31,6 +31,7 @@ async function init(config) {
 	 apiOperations[`post-${apiRootPath}employee`] = createEmployee;
 	 apiOperations[`get-${apiRootPath}employee`] = retrieveEmployee;
 	 apiOperations[`put-${apiRootPath}employee`] = updateEmployee;
+	 apiOperations[`delete-${apiRootPath}employee`] = deleteEmployee;
 }
 
 /**
@@ -88,8 +89,8 @@ async function createEmployee(employee) {
 				});
 			}
 		}
+		throw error;
 	}
-	throw error;
 }
 
 /**
@@ -109,8 +110,8 @@ async function retrieveEmployee(employeeId) {
 				});
 			}
 		}
+		throw error;
 	}
-	throw error;
 }
 
 /**
@@ -137,6 +138,34 @@ async function updateEmployee(employee) {
 				});
 			}
 		}
+		throw error;
 	}
-	throw error;
+}
+
+/**
+ * Deletes an employee.
+ * @param {number} employeeId id of employee to delete
+ * @return {Promise} On success, returns resolved promise holding true.
+ * On failure, returns a rejected promise.
+*/
+async function deleteEmployee(employeeId) {
+	try {
+		return await employeeService.delete(employeeId);
+	} catch (error) {
+		// Add appropriate status code to error response
+		if (error) {
+			if (error.code === EMPLOYEE_ERRORS.EMPLOYEE_NOT_FOUND.code) {
+				throw Object.assign(error, {
+					statusCode: STATUS_CODES.C404,
+				});
+			}
+
+			if (error.code === EMPLOYEE_ERRORS.COULD_NOT_ACQUIRE_FILE_LOCK.code) {
+				throw Object.assign(error, {
+					statusCode: STATUS_CODES.C500,
+				});
+			}
+		}
+		throw error;
+	}
 }
