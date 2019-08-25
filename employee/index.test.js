@@ -26,21 +26,49 @@ describe("EmployeeService", () => {
   afterAll(() => {
 		// Delete test data folder
     fs.removeSync(config.employeeDataFolder + "/../");
-  });
+	});
+	test("Throws an error when unable to acquire a lock on while initializing EmployeeService", async () => {
+		let release = "";
+		try {
+			//acquire a lock on employee ids file
+			release = await lockFile.lock(config.employeeIdsFile);
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			// Unlock employee ids file
+			await release();
+			expect(error).toMatchObject({
+				"code": "EMP3",
+				"message": "Unable to acquire file lock",
+				"details": {
+					// Current directory full path will differ on different machines
+					// as a result expecting only path to contain "test-data\ids.json"
+					"file": expect.stringContaining("/test-data/ids.json"),
+					"error": {
+						"code": "ELOCKED",
+						"file": expect.stringContaining("\\test-data\\ids.json"),
+					}
+				}
+			});
+		}
+	});
 	test("Throws an error when unable to acquire a lock on id files", async () => {
 		let release = "";
 		try {
-				const employeeService = new EmployeeService();
-				await employeeService.init(config);
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
 
-				//acquire a lock on employee ids file
-				release = await lockFile.lock(config.employeeIdsFile);
-				
-				// try to create an employee while a lock is present at employee ids file
-				await employeeService.create({fullName: "Spiderman"});
+			//acquire a lock on employee ids file
+			release = await lockFile.lock(config.employeeIdsFile);
+			
+			// try to create an employee while a lock is present at employee ids file
+			await employeeService.create({fullName: "Spiderman"});
 
-				// The code below should never execute since the above will throw an error
-				expect(false).toBeTruthy();
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
 		} catch (error) {
 			// Unlock employee ids file
 			await release();

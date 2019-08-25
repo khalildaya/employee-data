@@ -132,12 +132,11 @@ EmployeeService.prototype.list = function() {
  * more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
  */
 async function initEmployeeIdsFile(file) {
+	// Lock the ids file to initialize it if needed
+	let release = await acquireFileLock(file, _defaultLockFileOptions);
 	try {
 		// Make sure EmployeeService ids data file exists
 		fs.ensureFileSync(file);
-
-		// Lock the ids file to initialize it if needed
-		const release = await lockFile.lock(file, _defaultLockFileOptions);
 		let id = {
 			value: 0,
 		}
@@ -177,14 +176,15 @@ function initEmployeeDataFolder(folder) {
 /**
  * Attempts to lock a file. If fails throws an error
  * @param {string} file path of file to lock
+ * @param {object} options options to pass to lockFile as defined in proper-lockfile
  * @return {Promise} Promise to release file if locking the file succeeded.
  * Otherwise throws an error.
  */
-async function acquireFileLock(file) {
+async function acquireFileLock(file, options) {
 	// Try to lock the file
 	let release = null;
 	try {
-		release = await lockFile.lock(file);
+		release = await lockFile.lock(file, options);
 	} catch (error) {
 		throw Object.assign(ERRORS.COULD_NOT_ACQUIRE_FILE_LOCK, {
 			details: {
