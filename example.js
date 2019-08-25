@@ -1,8 +1,9 @@
 require("dotenv").config();
 const Employee = require("./employee");
 const config = require("./config");
-
+const apiOperations = require("./api-operations");
 async function main() {
+	await apiOperations.init(config);
 	const e = new Employee();
 	await e.init(config);
 	await e.create({

@@ -27,6 +27,7 @@ async function init(config) {
 	 * value is an function to fulfill the intended functionality e.g. creating an employee
 	  */
 	 apiOperations[`post-${apiRootPath}employee`] = createEmployee;
+	 apiOperations[`get-${apiRootPath}employee`] = retrieveEmployee
 }
 
 /**
@@ -50,6 +51,27 @@ async function createEmployee(employee) {
 			if (error.code === EMPLOYEE_ERRORS.COULD_NOT_ACQUIRE_FILE_LOCK.code) {
 				throw Object.assign(error, {
 					statusCode: STATUS_CODES.C500,
+				});
+			}
+		}
+	}
+	throw error;
+}
+
+/**
+ * Retrieves and employee
+ * @param {number} employeeId id of employee to retrieve
+ * @return {object} returns employee data on success otherwise throws an error.
+*/
+async function retrieveEmployee(employeeId) {
+	try {
+		return await employeeService.read(employeeId);
+	} catch (error) {
+		// Add appropriate status code to error response
+		if (error) {
+			if (error.code === EMPLOYEE_ERRORS.EMPLOYEE_NOT_FOUND.code) {
+				throw Object.assign(error, {
+					statusCode: STATUS_CODES.C404,
 				});
 			}
 		}

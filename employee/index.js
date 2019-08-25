@@ -105,7 +105,7 @@ EmployeeService.prototype.create = async function(employee) {
 /**
  * Retrieves and employee
  * @param {number} employeeId id of employee to retrieve
- * @return {object} returns employee data on success otherwise throws an error.
+ * @return {Promise} returns a resolve promise holding employee data on success, otherwise throws an error.
 */
 EmployeeService.prototype.read = function(employeeId) {
 	// throw an error if employee does not exist
