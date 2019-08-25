@@ -65,7 +65,7 @@ describe("EmployeeService", () => {
 			release = await lockFile.lock(config.employeeIdsFile);
 			
 			// try to create an employee while a lock is present at employee ids file
-			await employeeService.create({fullName: "Spiderman"});
+			await employeeService.create({fullName: "Spider man"});
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -98,14 +98,14 @@ describe("EmployeeService", () => {
 			
 			// try to create an employee which will have id 1
 			await employeeService.create({
-				id:1,
-				fullName: "Ironman"
+				fullName: "Iron man"
 			});
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
 		} catch (error) {
-			console.log(JSON.stringify(error));
+			// Remove the file used to simulate creating an employee
+			fs.removeSync(`${config.employeeDataFolder}/1.json`);
 			expect(error).toMatchObject({
 				"code": "EMP5",
 				"message": "Employee already exists",
@@ -114,5 +114,20 @@ describe("EmployeeService", () => {
 				}
 			});
 		}
+	});
+
+	test("Successfully creates an employee", async () => {
+		const employeeService = new EmployeeService();
+		await employeeService.init(config);
+		await employeeService.create({
+			fullName: "Iron man"
+		});
+		await employeeService.create({
+			fullName: "Super man"
+		});
+		const lastId = await employeeService.create({
+			fullName: "Wonder woman"
+		});
+		expect(lastId).toEqual(3);
 	});
 });
