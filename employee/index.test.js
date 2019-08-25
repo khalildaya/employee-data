@@ -257,4 +257,22 @@ describe("EmployeeService", () => {
 			age: 140,
 		});
 	});
+
+	test("Throws an error when deleting a non-existent employee", async () => {
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+			await employeeService.delete(10);
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 10
+				}
+			});
+		}
+	});
 });

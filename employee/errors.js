@@ -28,5 +28,9 @@ module.exports = Object.freeze({
 	EMPLOYEE_ALREADY_EXISTS: {
 		code: `${ERRORS_PREFIX}${NUMBERS.FIVE}`,
 		message: "Employee already exists",
-	}
+	},
+	DELETE_EMPLOYEE_ERROR: {
+		code: `${ERRORS_PREFIX}${NUMBERS.SIX}`,
+		message: "Error while deleting employee",
+	},
 });

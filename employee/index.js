@@ -154,8 +154,39 @@ EmployeeService.prototype.update = async function(employee) {
 	}
 }
 
-EmployeeService.prototype.delete = function() {
-	return true;
+/**
+ * Deletes an employee.
+ * @param {number} employeeId id of employee to delete
+ * @return {Promise} On success, returns resolved promise holding true.
+ * On failure, returns a rejected promise.
+*/
+EmployeeService.prototype.delete = async function(employeeId) {
+	// throw an error if employee does not exist
+	if (!employeeExists({id: employeeId})) {
+		throw Object.assign(ERRORS.EMPLOYEE_NOT_FOUND, {
+			details: {
+				id: employeeId
+			}
+		});
+	}
+	const file = `${_employeeDataFolder}/${employee.id}.json`;
+	// lock employee file to delete employee
+	let release = await acquireFileLock(file);
+	try {
+		// Delete employee file
+		await fs.remove(`${_employeeDataFolder}/${employee.id}.json`);
+
+		await release();
+		return true;
+	} catch (error) {
+		// Unlock ids file
+		await release();
+		throw Object.assign(ERRORS.DELETE_EMPLOYEE_ERROR, {
+			details: {
+				error,
+			}
+		});
+	}
 }
 
 EmployeeService.prototype.list = function() {

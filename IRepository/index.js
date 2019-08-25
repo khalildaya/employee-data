@@ -33,19 +33,37 @@ IRepository.prototype.create = async function(item) {
 	});
 }
 
-IRepository.prototype.read = async function() {
+/**
+ * Retrieves an item.
+ * @param {number} itemId id of item to retrieve
+ * @return {Promise} On success, returns resolved promise holding item.
+ * On failure, returns a rejected promise.
+*/
+IRepository.prototype.read = async function(itemId) {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "read",
 	});
 }
 
-IRepository.prototype.update = async function() {
+/**
+ * Updates an item.
+ * @param {object} item object holding to-update item properties
+ * @return {Promise} On success, returns resolved promise holding true.
+ * On failure, returns a rejected promise.
+*/
+IRepository.prototype.update = async function(item) {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "update",
 	});
 }
 
-IRepository.prototype.delete = async function() {
+/**
+ * Deletes an item.
+ * @param {number} itemId id of item to delete
+ * @return {Promise} On success, returns resolved promise holding true.
+ * On failure, returns a rejected promise.
+*/
+IRepository.prototype.delete = async function(itemId) {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "delete",
 	});
