@@ -77,7 +77,8 @@ EmployeeService.prototype.create = async function(employee) {
 
 		// Set last used employee id to current employee id
 		await fs.writeJSON(_employeeIdsFile, {value: employee.id});
-		return release();
+		await release();
+		return employee.id;
 	} catch (error) {
 		// Unlock ids file
 		await release();
@@ -95,17 +96,24 @@ EmployeeService.prototype.read = function() {
 
 EmployeeService.prototype.update = async function(employee) {
 	const file = `${_employeeDataFolder}/${employee.id}.json`;
+	if (!fs.pathExistsSync(file)) {
+		throw Object.assign(ERRORS.EMPLOYEE_NOT_FOUND, {
+			details: {
+				id: employee.id
+			}
+		});
+	}
+	// lock employee file to update employee
+	let release = await acquireFileLock(file);
 	try {
-		// lock employee file to update employee
-		const release = await lockFile.lock(file);
-
 		// Update employee file
 		await fs.writeJSON(`${_employeeDataFolder}/${employee.id}.json`, employee);
 
-		return release();
+		await release();
+		return true;
 	} catch (error) {
 		// Unlock ids file
-		await lockFile.unlock(file);
+		await release();
 		throw Object.assign(ERRORS.UPDATE_EMPLOYEE_ERROR, {
 			details: {
 				error,

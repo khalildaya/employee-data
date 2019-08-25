@@ -20,5 +20,9 @@ module.exports = Object.freeze({
 	COULD_NOT_ACQUIRE_FILE_LOCK: {
 		code: `${ERRORS_PREFIX}${NUMBERS.THREE}`,
 		message: "Unable to acquire file lock",
+	},
+	EMPLOYEE_NOT_FOUND: {
+		code: `${ERRORS_PREFIX}${NUMBERS.FOUR}`,
+		message: "Employee not found",
 	}
 });
