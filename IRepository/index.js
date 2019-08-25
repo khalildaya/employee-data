@@ -69,6 +69,11 @@ IRepository.prototype.delete = async function(itemId) {
 	});
 }
 
+/**
+ * Retrieves a list of items.
+ * @return {Promise} Returns a promise holding an array fo items on success.
+ * Otherwise throws an error 
+*/
 IRepository.prototype.list = async function() {
 	throw Object.assign(ERRORS.METHOD_NOT_IMPLEMENTED, {
 		method: "list",

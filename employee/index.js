@@ -189,8 +189,49 @@ EmployeeService.prototype.delete = async function(employeeId) {
 	}
 }
 
+/**
+ * Retrieves a list of items.
+ * @return {Promise} Returns a promise holding an array fo items on success.
+ * Otherwise throws an error 
+*/
 EmployeeService.prototype.list = function() {
-	return true;
+	/**
+	 * We can ready all the files under employee data folder in a synchronous way,
+	 * however, to take advantage of Node.js very good asynchronous I/O performance,
+	 * we'll read the file in an asynchronous manner.
+	*/
+	return Promise((resolve, reject) => {
+		const temp = [];
+		const promises = [];
+		fs.readdir(_employeeDataFolder, (err, files) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+			files.forEach(file => {
+				promises.push(async () => {
+					const employee = await fs.readJSON(`${_employeeDataFolder}/${file}`);
+					// Store the employee in its expected index in the array to preserve order by id
+					temp[employee.id] = employee;
+				});
+			});
+			Promise.all(promises)
+			.then(() => {
+				// Remove any indexes of the array that contain no employees
+				// for example, if an employee with id 30 has been deleted, then temp[30] in the above will be undefined
+				const result = [];
+				temp.forEach(employee => {
+					if (employee !== undefined) {
+						result.push(employee);
+					}
+					resolve(result);
+				});
+			})
+			.catch(error => {
+				reject(error);
+			});
+		});
+	});
 }
 
 /**
