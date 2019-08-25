@@ -102,8 +102,22 @@ EmployeeService.prototype.create = async function(employee) {
 	}
 }
 
-EmployeeService.prototype.read = function() {
-	return true;
+/**
+ * Retrieves and employee
+ * @param {number} employeeId id of employee to retrieve
+ * @return {object} returns employee data on success otherwise throws an error.
+*/
+EmployeeService.prototype.read = function(employeeId) {
+	// throw an error if employee does not exist
+	if (!employeeExists({id: employeeId})) {
+		throw Object.assign(ERRORS.EMPLOYEE_NOT_FOUND, {
+			details: {
+				id: employeeId,
+			}
+		});
+	}
+	const file = `${_employeeDataFolder}/${employeeId}.json`;
+	return fs.readJSONSync(file);
 }
 
 /**

@@ -130,4 +130,41 @@ describe("EmployeeService", () => {
 		});
 		expect(lastId).toEqual(3);
 	});
+
+	test("Throws an error when retrieving a non-existent employee", async () => {
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+			await employeeService.read(100);
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 100
+				}
+			});
+		}
+	});
+
+	test("Successfully reads an employee", async () => {
+		const employeeService = new EmployeeService();
+		await employeeService.init(config);
+		await employeeService.create({
+			fullName: "Iron man"
+		});
+		await employeeService.create({
+			fullName: "Super man"
+		});
+		await employeeService.create({
+			fullName: "Wonder woman"
+		});
+		const employee = await employeeService.read(3);
+		expect(employee).toMatchObject({
+			id: 3,
+			fullName: "Wonder woman",
+		});
+	});
 });
