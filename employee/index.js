@@ -123,7 +123,8 @@ EmployeeService.prototype.read = function(employeeId) {
 /**
  * Updates an employee.
  * @param {object} employee employee to update
- * @return {boolean} returns true if employee was updated successfully. Throws an error otherwise 
+ * @return {Promise} returns a resolved promise holding true if employee was updated successfully.
+ * Throws an error otherwise 
 */
 EmployeeService.prototype.update = async function(employee) {
 	// throw an error if employee does not exist
