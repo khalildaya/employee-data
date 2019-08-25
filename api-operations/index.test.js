@@ -280,4 +280,95 @@ describe("EmployeeService", () => {
 			fullName: "Wonder woman"
 		});
 	});
+
+	test("Successfully reads an employee", async () => {
+		await apiOperations.init(config);
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Iron man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Super man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Wonder woman"
+		});
+
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Thor"
+		});
+
+		const employee = await apiOperations.executeOperation("get-/employee", 2);
+		
+		expect(employee).toEqual({
+			id: 2,
+			fullName: "Super man"
+		});
+	});
+
+	test("Successfully updates an employee", async () => {
+		await apiOperations.init(config);
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Iron man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Super man"
+		});
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Wonder woman"
+		});
+
+		await apiOperations.executeOperation("post-/employee", {
+			fullName: "Thor"
+		});
+
+		const isUpdated = await apiOperations.executeOperation("put-/employee", {
+			id: 1,
+			fullName: "Tony Starck"
+		});
+		expect(isUpdated).toBeTruthy();
+		
+		const employee = await apiOperations.executeOperation("get-/employee", 1);
+		expect(employee).toEqual({
+			id: 1,
+			fullName: "Tony Starck"
+		});
+	});
+
+	test("Successfully deletes an employee", async () => {
+		try {
+			await apiOperations.init(config);
+			await apiOperations.executeOperation("post-/employee", {
+				fullName: "Iron man"
+			});
+			await apiOperations.executeOperation("post-/employee", {
+				fullName: "Super man"
+			});
+			await apiOperations.executeOperation("post-/employee", {
+				fullName: "Wonder woman"
+			});
+
+			await apiOperations.executeOperation("post-/employee", {
+				fullName: "Thor"
+			});
+
+			const isDeleted = await apiOperations.executeOperation("delete-/employee", 4);
+			expect(isDeleted).toBeTruthy();
+			
+			// Try to read a non-existent employee and expect to get a not found error
+			await apiOperations.executeOperation("get-/employee", 4);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 404,
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 4
+				}
+			});
+		}
+	
+	});
 });
