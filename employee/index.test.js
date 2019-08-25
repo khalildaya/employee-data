@@ -291,7 +291,7 @@ describe("EmployeeService", () => {
 
 			//acquire a lock on employee file
 			release = await lockFile.lock(`${config.employeeDataFolder}/1.json`);
-			
+
 			await employeeService.delete(1);
 
 			// The code below should never execute since the above will throw an error
@@ -307,6 +307,41 @@ describe("EmployeeService", () => {
 						"code": "ELOCKED",						
 						"file": expect.stringContaining("\\test-data\\employees\\1.json"),
 					}
+				}
+			});
+		}
+	});
+
+	test("Successfully deletes an employee", async () => {
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+			await employeeService.create({
+				fullName: "Iron man"
+			});
+			await employeeService.create({
+				fullName: "Bat man",
+			});
+			await employeeService.create({
+				fullName: "Super man"
+			});
+			await employeeService.create({
+				fullName: "Wonder woman"
+			});
+
+			const isDeleted = await employeeService.delete(3);
+			expect(isDeleted).toBeTruthy();
+
+			// employee with id 3 should be non-existent at this point
+			await employeeService.read(3);
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 3
 				}
 			});
 		}
