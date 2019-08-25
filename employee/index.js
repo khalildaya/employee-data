@@ -80,7 +80,7 @@ EmployeeService.prototype.create = async function(employee) {
 		return release();
 	} catch (error) {
 		// Unlock ids file
-		await lockFile.unlock(_employeeIdsFile);
+		await release();
 		throw Object.assign(ERRORS.CREATE_EMPLOYEE_ERROR, {
 			details: {
 				error,
@@ -155,9 +155,9 @@ async function initEmployeeIdsFile(file) {
 	} catch (error) {
 		// Force unlocking the file but still throw an error to the outer scope
 		// since application cannot start up if ids file could not be initialized
-		await lockFile.unlock(file);
+		await release();
 
-		throw Object.assign(ERRORS.INIT_EmployeeService_IDS_ERROR, {
+		throw Object.assign(ERRORS.INIT_EMPLOYEE_IDS_ERROR, {
 			details: {
 				error,
 			}
