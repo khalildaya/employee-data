@@ -15,5 +15,7 @@ module.exports = Object.freeze({
 
 		// Number of retires to acquire a lock on a locked resource, default is 5
 		retries: process.env.LOCK_FILE_OPTIONS_STALE || 5,
-	}
+	},
+	// Prefix for api routes
+	apiRootPath: process.env.API_ROOT_PATH || "/",
 });
