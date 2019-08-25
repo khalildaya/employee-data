@@ -57,7 +57,7 @@ EmployeeService.prototype.init = async function(config) {
 /**
  * Creates an employee.
  * @param {object} employee object holding employee properties
- * @return {number} On success, returns employee's auto-incremented id.
+ * @return {Promise} On success, returns a resolved promise holding employee's auto-incremented id.
  * On failure, throws an error.
 */
 EmployeeService.prototype.create = async function(employee) {

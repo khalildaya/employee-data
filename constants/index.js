@@ -10,5 +10,11 @@ module.exports = Object.freeze({
 		FOUR:4,
 		FIVE: 5,
 		SIX: 6,
+	},
+	STATUS_CODES: {
+		C200: 200,
+		C400: 400,
+		C404: 404,
+		C500: 500,
 	}
 });
