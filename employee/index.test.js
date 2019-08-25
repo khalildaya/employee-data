@@ -87,4 +87,32 @@ describe("EmployeeService", () => {
 			});
 		}
 	});
+
+	test("Throws an error when creating an employee with an already existing id", async () => {
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+
+			// Simulate creating an employee
+			fs.createFileSync(`${config.employeeDataFolder}/1.json`);
+			
+			// try to create an employee which will have id 1
+			await employeeService.create({
+				id:1,
+				fullName: "Ironman"
+			});
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			console.log(JSON.stringify(error));
+			expect(error).toMatchObject({
+				"code": "EMP5",
+				"message": "Employee already exists",
+				"details": {
+					"id": 1
+				}
+			});
+		}
+	});
 });

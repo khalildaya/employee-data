@@ -57,8 +57,8 @@ EmployeeService.prototype.init = async function(config) {
 /**
  * Creates an employee.
  * @param {object} employee object holding employee properties
- * @return {Promise} On success, returns resolved promise holding
- * employee's auto-incremented id. On failure, returns a rejected promise.
+ * @return {number} On success, returns employee's auto-incremented id.
+ * On failure, throws an error.
 */
 EmployeeService.prototype.create = async function(employee) {
 	// Try to lock employee ids file to get the next auto-increment for the id
@@ -72,6 +72,15 @@ EmployeeService.prototype.create = async function(employee) {
 		// Assign auto-increment id to employee
 		employee.id = value + NUMBERS.ONE;
 
+		// Check if employee exists
+		if (employeeExists(employee)) {
+			throw Object.assign(ERRORS.EMPLOYEE_ALREADY_EXISTS, {
+				details: {
+					id: employee.id,
+				}
+			});
+		}
+
 		// Create employee file i.e. store employee
 		await fs.writeJSON(`${_employeeDataFolder}/${employee.id}.json`, employee);
 
@@ -82,6 +91,9 @@ EmployeeService.prototype.create = async function(employee) {
 	} catch (error) {
 		// Unlock ids file
 		await release();
+		if (error && error.code && error.code === ERRORS.EMPLOYEE_ALREADY_EXISTS.code) {
+			throw error;
+		}
 		throw Object.assign(ERRORS.CREATE_EMPLOYEE_ERROR, {
 			details: {
 				error,
@@ -94,15 +106,21 @@ EmployeeService.prototype.read = function() {
 	return true;
 }
 
+/**
+ * Updates an employee.
+ * @param {object} employee employee to update
+ * @return {boolean} returns true if employee was updated successfully. Throws an error otherwise 
+*/
 EmployeeService.prototype.update = async function(employee) {
-	const file = `${_employeeDataFolder}/${employee.id}.json`;
-	if (!fs.pathExistsSync(file)) {
+	// throw an error if employee does not exist
+	if (!employeeExists(employee)) {
 		throw Object.assign(ERRORS.EMPLOYEE_NOT_FOUND, {
 			details: {
 				id: employee.id
 			}
 		});
 	}
+	const file = `${_employeeDataFolder}/${employee.id}.json`;
 	// lock employee file to update employee
 	let release = await acquireFileLock(file);
 	try {
@@ -202,4 +220,13 @@ async function acquireFileLock(file, options) {
 		});
 	}
 	return release;
+}
+
+/**
+ * checks if an employee already exists
+ * @param {object} employee employee for which ti check existence
+ * @return {boolean} true if employee exists, false otherwise
+ */
+function employeeExists(employee) {
+	return fs.pathExistsSync(`${_employeeDataFolder}/${employee.id}.json`);
 }

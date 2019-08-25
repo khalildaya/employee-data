@@ -24,5 +24,9 @@ module.exports = Object.freeze({
 	EMPLOYEE_NOT_FOUND: {
 		code: `${ERRORS_PREFIX}${NUMBERS.FOUR}`,
 		message: "Employee not found",
+	},
+	EMPLOYEE_ALREADY_EXISTS: {
+		code: `${ERRORS_PREFIX}${NUMBERS.FIVE}`,
+		message: "Employee already exists",
 	}
 });
