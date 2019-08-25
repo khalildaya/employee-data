@@ -50,7 +50,10 @@ describe("EmployeeService", () => {
 				"details": {
 					"error": {
 						"code": "ELOCKED",
-						"file": "C:\\Dev\\test\\employee-data\\test-data\\ids.json"
+
+						// Current directory full path will differ on different machines
+						// as a result expecting only path to contain "test-data\ids.json"
+						"file": expect.stringContaining("\\test-data\\ids.json"),
 					}
 				}
 			});
