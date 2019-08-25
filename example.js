@@ -1,13 +1,10 @@
 require("dotenv").config();
 const Employee = require("./employee");
-const {
-	employeeDataFolder,
-	employeeIdsFile,
-} = require("./config");
+const config = require("./config");
 
 async function main() {
 	const e = new Employee();
-	await e.init(employeeIdsFile, employeeDataFolder);
+	await e.init(config);
 	await e.create({
 		fullName: "Fraser Crane"
 	});
