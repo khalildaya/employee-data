@@ -8,11 +8,19 @@ async function main() {
 	await e.create({
 		fullName: "Fraser Crane"
 	});
+	await e.create({
+		fullName: "Fraser Crane"
+	});
+	await e.create({
+		fullName: "Fraser Crane"
+	});
 
 	await e.update({
 		id: 2,
 		fullName: "Batman"
 	});
+	const l = await e.list();
+	console.log(l);
 }
 
 main().then(() => {

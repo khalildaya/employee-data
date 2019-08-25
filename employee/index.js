@@ -47,8 +47,8 @@ EmployeeService.prototype.init = async function(config) {
 	// Setting a default lock file options
 	// more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
 	_defaultLockFileOptions = config.defaultLockFileOptions;
-	await initEmployeeIdsFile(config.employeeIdsFile);
 	initEmployeeDataFolder(config.employeeDataFolder);
+	await initEmployeeIdsFile(config.employeeIdsFile);
 }
 /**
  * Below the methods of IRepository interface implemented in EmployeeService class
@@ -200,21 +200,25 @@ EmployeeService.prototype.list = function() {
 	 * however, to take advantage of Node.js very good asynchronous I/O performance,
 	 * we'll read the file in an asynchronous manner.
 	*/
-	return Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {
 		const temp = [];
-		const promises = [];
 		fs.readdir(_employeeDataFolder, (err, files) => {
 			if (err) {
 				reject(err);
 				return;
 			}
-			files.forEach(file => {
-				promises.push(async () => {
-					const employee = await fs.readJSON(`${_employeeDataFolder}/${file}`);
-					// Store the employee in its expected index in the array to preserve order by id
-					temp[employee.id] = employee;
+			const promises = files.map(file => {
+				return new Promise((resolve, reject) => {
+					fs.readJSON(`${_employeeDataFolder}/${file}`)
+					.then(employee => {
+						temp[employee.id] = employee;
+						resolve();
+					})
+					.catch(error => {
+						reject(error);
+					});
 				});
-			});
+			})
 			Promise.all(promises)
 			.then(() => {
 				// Remove any indexes of the array that contain no employees
@@ -224,8 +228,8 @@ EmployeeService.prototype.list = function() {
 					if (employee !== undefined) {
 						result.push(employee);
 					}
-					resolve(result);
 				});
+				resolve(result);
 			})
 			.catch(error => {
 				reject(error);
@@ -244,11 +248,12 @@ EmployeeService.prototype.list = function() {
  * more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
  */
 async function initEmployeeIdsFile(file) {
+	// Make sure EmployeeService ids data file exists
+	fs.ensureFileSync(file);
+	
 	// Lock the ids file to initialize it if needed
 	let release = await acquireFileLock(file, _defaultLockFileOptions);
 	try {
-		// Make sure EmployeeService ids data file exists
-		fs.ensureFileSync(file);
 		let id = {
 			value: 0,
 		}

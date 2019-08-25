@@ -346,4 +346,44 @@ describe("EmployeeService", () => {
 			});
 		}
 	});
+
+	test("Successfully lists all employees", async () => {
+		const employeeService = new EmployeeService();
+		await employeeService.init(config);
+		await employeeService.create({
+			fullName: "Iron man"
+		});
+		await employeeService.create({
+			fullName: "Bat man",
+		});
+		await employeeService.create({
+			fullName: "Super man"
+		});
+		await employeeService.create({
+			fullName: "Wonder woman"
+		});
+
+		await employeeService.delete(2);
+
+		let employees = await employeeService.list();
+		expect(employees).toMatchObject([
+			{
+				id: 1,
+				fullName: "Iron man"
+			},
+			{
+				id: 3,
+				fullName: "Super man"
+			},
+			{
+				id: 4,
+				fullName: "Wonder woman"
+			}
+		]);
+		await employeeService.delete(1);
+		await employeeService.delete(3);
+		await employeeService.delete(4);
+		employees = await employeeService.list();
+		expect(employees).toMatchObject([]);
+	});
 });
