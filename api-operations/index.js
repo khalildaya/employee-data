@@ -32,6 +32,7 @@ async function init(config) {
 	 apiOperations[`get-${apiRootPath}employee`] = retrieveEmployee;
 	 apiOperations[`put-${apiRootPath}employee`] = updateEmployee;
 	 apiOperations[`delete-${apiRootPath}employee`] = deleteEmployee;
+	 apiOperations[`get-${apiRootPath}employees`] = listEmployees;
 }
 
 /**
@@ -168,4 +169,13 @@ async function deleteEmployee(employeeId) {
 		}
 		throw error;
 	}
+}
+
+/**
+ * Retrieves a list of employees.
+ * @return {Promise} Returns a promise holding an array of employees on success.
+ * Otherwise throws an error 
+*/
+async function listEmployees() {
+	return await employeeService.list();
 }

@@ -191,8 +191,8 @@ EmployeeService.prototype.delete = async function(employeeId) {
 }
 
 /**
- * Retrieves a list of items.
- * @return {Promise} Returns a promise holding an array fo items on success.
+ * Retrieves a list of employees.
+ * @return {Promise} Returns a promise holding an array of employees on success.
  * Otherwise throws an error 
 */
 EmployeeService.prototype.list = function() {
