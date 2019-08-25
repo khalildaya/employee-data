@@ -17,8 +17,8 @@ module.exports = Object.freeze({
 		code: `${ERRORS_PREFIX}${NUMBERS.TWO}`,
 		message: "Error while updating employee",
 	},
-	EMPLOYEE_IDS_NO_LOCK: {
+	COULD_NOT_ACQUIRE_FILE_LOCK: {
 		code: `${ERRORS_PREFIX}${NUMBERS.THREE}`,
-		message: "Unable to acquire lock on employee ids file",
+		message: "Unable to acquire file lock",
 	}
 });

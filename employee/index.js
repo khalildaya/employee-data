@@ -62,16 +62,7 @@ EmployeeService.prototype.init = async function(config) {
 */
 EmployeeService.prototype.create = async function(employee) {
 	// Try to lock employee ids file to get the next auto-increment for the id
-	let release = null;
-	try {
-		release = await lockFile.lock(_employeeIdsFile);
-	} catch (error) {
-		throw Object.assign(ERRORS.EMPLOYEE_IDS_NO_LOCK, {
-			details: {
-				error,
-			}
-		});
-	}
+	let release = await acquireFileLock(_employeeIdsFile);
 	try {
 		// get last auto-increment id
 		const {
@@ -181,4 +172,26 @@ async function initEmployeeIdsFile(file) {
  */
 function initEmployeeDataFolder(folder) {
 	fs.ensureDirSync(folder);
+}
+
+/**
+ * Attempts to lock a file. If fails throws an error
+ * @param {string} file path of file to lock
+ * @return {Promise} Promise to release file if locking the file succeeded.
+ * Otherwise throws an error.
+ */
+async function acquireFileLock(file) {
+	// Try to lock the file
+	let release = null;
+	try {
+		release = await lockFile.lock(file);
+	} catch (error) {
+		throw Object.assign(ERRORS.COULD_NOT_ACQUIRE_FILE_LOCK, {
+			details: {
+				file,
+				error,
+			}
+		});
+	}
+	return release;
 }

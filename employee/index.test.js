@@ -44,15 +44,15 @@ describe("EmployeeService", () => {
 		} catch (error) {
 			// Unlock employee ids file
 			await release();
-			expect(error).toMatchObject( {
+			expect(error).toMatchObject({
 				"code": "EMP3",
-				"message": "Unable to acquire lock on employee ids file",
+				"message": "Unable to acquire file lock",
 				"details": {
+					// Current directory full path will differ on different machines
+					// as a result expecting only path to contain "test-data\ids.json"
+					"file": expect.stringContaining("/test-data/ids.json"),
 					"error": {
 						"code": "ELOCKED",
-
-						// Current directory full path will differ on different machines
-						// as a result expecting only path to contain "test-data\ids.json"
 						"file": expect.stringContaining("\\test-data\\ids.json"),
 					}
 				}
