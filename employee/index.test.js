@@ -14,7 +14,7 @@ const config = {
 
 describe("EmployeeService", () => {
 	// Empty test folders before and after all tests
-	beforeAll(() => {
+	beforeEach(() => {
 		// Empty employee ids file
 		fs.removeSync(config.employeeIdsFile);
 		fs.ensureFileSync(config.employeeIdsFile);
@@ -23,7 +23,7 @@ describe("EmployeeService", () => {
 		fs.removeSync(config.employeeDataFolder);
 		fs.ensureDirSync(config.employeeDataFolder);
   });
-  afterAll(() => {
+  afterEach(() => {
 		// Delete test data folder
     fs.removeSync(config.employeeDataFolder + "/../");
 	});
@@ -166,5 +166,65 @@ describe("EmployeeService", () => {
 			id: 3,
 			fullName: "Wonder woman",
 		});
+	});
+
+	test("Throws an error when updating a non-existent employee", async () => {
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+			const employee = {
+				id: 10,
+				fullName: "Bat man",
+			};
+			await employeeService.update(employee);
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"code": "EMP4",
+				"message": "Employee not found",
+				"details": {
+					"id": 10
+				}
+			});
+		}
+	});
+
+	test("Throws an error when trying to lock employee file to update employee", async () => {
+		let release = null;
+		try {
+			const employeeService = new EmployeeService();
+			await employeeService.init(config);
+
+			// Simulate creating an employee
+			const employee = {
+				fullName: "Bat man",
+			};
+			const id = await employeeService.create(employee);
+			console.log(id);
+			expect(id).toEqual(1);
+
+			//acquire a lock on employee file
+			release = await lockFile.lock(`${config.employeeDataFolder}/1.json`);
+
+			employee.fullName = "Bruce Wane";
+			await employeeService.update(employee);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			await release();
+			expect(error).toMatchObject({
+				"code": "EMP3",
+				"message": "Unable to acquire file lock",
+				"details": {
+					"file": expect.stringContaining("/test-data/employees/1.json"),
+					"error": {
+						"code": "ELOCKED",						
+						"file": expect.stringContaining("\\test-data\\employees\\1.json"),
+					}
+				}
+			});
+		}
 	});
 });
