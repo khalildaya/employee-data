@@ -676,55 +676,119 @@ describe("EmployeeService", () => {
 	});
 
 	test("Successfully reads an employee", async () => {
+		const request = {
+			path: "/employee",
+			headers: {},
+			method: "POST",
+			query: {},
+			params: {},
+			body: {
+				fullName: "Iron man",
+				age: 39,
+				salary: 10000,
+				cityCode: "AGD"
+			}
+		};
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Iron man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Super man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Wonder woman"
-		});
+		await apiOperations.executeOperation("post-employee", request);
+		request.body = {
+			fullName: "Super man",
+			age: 41,
+			salary: 9000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+		request.body = {
+			fullName: "Wonder woman",
+			age: 32,
+			salary: 9000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
 
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Thor"
-		});
-
-		const employee = await apiOperations.executeOperation("get-employee", 2);
+		request.body = {
+			fullName: "Thor",
+			age: 44,
+			salary: 10000,
+			cityCode: "AGD"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+		
+		request.method = "GET";
+		request.params.id = 2;
+		const employee = await apiOperations.executeOperation("get-employee", request);
 		
 		expect(employee).toEqual({
 			id: 2,
-			fullName: "Super man"
+			fullName: "Super man",
+			age: 41,
+			salary: 9000,
+			cityCode: "KPT"
 		});
 	});
 
 	test("Successfully updates an employee", async () => {
+
+		const request = {
+			path: "/employee",
+			headers: {},
+			method: "POST",
+			query: {},
+			params: {},
+			body: {
+				fullName: "Iron man",
+				age: 39,
+				salary: 10000,
+				cityCode: "AGD"
+			}
+		};
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Iron man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Super man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Wonder woman"
-		});
+		await apiOperations.executeOperation("post-employee", request);
+		request.body = {
+			fullName: "Super man",
+			age: 41,
+			salary: 9000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+		request.body = {
+			fullName: "Wonder woman",
+			age: 32,
+			salary: 9000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
 
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Thor"
-		});
-
-		const isUpdated = await apiOperations.executeOperation("put-employee", {
+		request.body = {
+			fullName: "Thor",
+			age: 44,
+			salary: 10000,
+			cityCode: "AGD"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+		
+		request.method = "PUT";
+		request.body = {
 			id: 1,
-			fullName: "Tony Starck"
-		});
+			fullName: "Tony Starck",
+			age: 39,
+			salary: 10000,
+			cityCode: "AGD"
+		}
+		const isUpdated = await apiOperations.executeOperation("put-employee", request);
 		expect(isUpdated).toBeTruthy();
 		
-		const employee = await apiOperations.executeOperation("get-employee", 1);
+		request.method = "GET",
+		request.params.id = 1;
+		request.body = {};
+		const employee = await apiOperations.executeOperation("get-employee", request);
+
 		expect(employee).toEqual({
 			id: 1,
-			fullName: "Tony Starck"
+			fullName: "Tony Starck",
+			age: 39,
+			salary: 10000,
+			cityCode: "AGD"
 		});
 	});
 
