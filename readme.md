@@ -6,3 +6,6 @@ An api exposing create, update, delete and list routes of employee data. the api
 2. run ```npm install```
 3. run ```npm start``` to start the api server
 4. run ```npm test``` to run unit tests
+
+## Example requests
+An example postman collection could be found at [EMPLOYEE_DATA.postman_collection.json](./EMPLOYEE_DATA.postman_collection.json)
