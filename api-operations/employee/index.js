@@ -16,12 +16,12 @@ module.exports = Object.freeze({
 });
 
 async function init(config) {
-	let {
+	const {
 		apiRootPath, // API route path, default is "/"
 	} = config;
 
 	// Remove / from the apiRootPath so it works with api request validator
-	apiRootPath = apiRootPath.split("/").join("");
+	let prefix = apiRootPath.split("/").join("");
 
 	// Initialize employee service
 	await employeeService.init(config);
@@ -30,12 +30,32 @@ async function init(config) {
 	 * Create api operation key-value store, where key is built as 
 	 * <http method>-<path> e.g. post-/api/employee
 	 * value is an function to fulfill the intended functionality e.g. creating an employee
-	  */
-	 apiOperations[`post-${apiRootPath}employee`] = createEmployee;
-	 apiOperations[`get-${apiRootPath}employee`] = retrieveEmployee;
-	 apiOperations[`put-${apiRootPath}employee`] = updateEmployee;
-	 apiOperations[`delete-${apiRootPath}employee`] = deleteEmployee;
-	 apiOperations[`get-${apiRootPath}employees`] = listEmployees;
+	*/
+	apiOperations[`post-${prefix}employee`] = {
+		func: createEmployee,
+		method: "post",
+		path: `${apiRootPath}employee`
+	};
+	apiOperations[`get-${prefix}employee`] = {
+		func: retrieveEmployee,
+		method: "get",
+		path: `${apiRootPath}employee/:id`
+	};
+	apiOperations[`put-${prefix}employee`] = {
+		func: updateEmployee,
+		method: "put",
+		path: `${apiRootPath}employee`
+	};
+	apiOperations[`delete-${prefix}employee`] = {
+		func: deleteEmployee,
+		method: "delete",
+		path: `${apiRootPath}employee/:id`
+	};
+	apiOperations[`get-${prefix}employees`] = {
+		func: listEmployees,
+		method: "get",
+		path: `${apiRootPath}employees`
+	};
 
 	 return apiOperations;
 }

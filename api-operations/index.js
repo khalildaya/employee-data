@@ -63,5 +63,5 @@ async function executeOperation(operationId, request) {
 	}
 
 	// Execute and api operation and return its result
-	return apiOperations[operationId](request);
+	return apiOperations[operationId].func(request);
 };
