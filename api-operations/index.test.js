@@ -603,7 +603,7 @@ describe("EmployeeService", () => {
 			// create an employee
 			const response = await apiOperations.executeOperation("post-employee", request);
 			employeeId = response.employeeId;
-			
+
 			//acquire a lock on employee file
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
 
@@ -835,9 +835,8 @@ describe("EmployeeService", () => {
 			
 			request.method = "DELETE";
 			request.params.id = 4;
-			request.body = {}
-			const isDeleted = await apiOperations.executeOperation("delete-employee", request);
-			expect(isDeleted).toBeTruthy();
+			request.body = {};
+			await apiOperations.executeOperation("delete-employee", request);
 			
 			request.method = "GET",
 			request.params.id = 4;

@@ -149,7 +149,7 @@ async function updateEmployee(apiRequest) {
 */
 async function deleteEmployee(apiRequest) {
 	try {
-		return await employeeService.delete(apiRequest.params.id);
+		await employeeService.delete(apiRequest.params.id);
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {
