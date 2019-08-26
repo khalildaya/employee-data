@@ -519,7 +519,8 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 
 			// create an employee
-			employeeId = await apiOperations.executeOperation("post-employee", request);
+			const response = await apiOperations.executeOperation("post-employee", request);
+			employeeId = response.employeeId;
 
 			//acquire a lock on employee file
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
@@ -600,8 +601,9 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 
 			// create an employee
-			employeeId = await apiOperations.executeOperation("post-employee", request);
-
+			const response = await apiOperations.executeOperation("post-employee", request);
+			employeeId = response.employeeId;
+			
 			//acquire a lock on employee file
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
 

@@ -68,7 +68,10 @@ async function init(config) {
 */
 async function createEmployee(apiRequest) {
 	try {
-		return await employeeService.create(apiRequest.body);
+		const employeeId = await employeeService.create(apiRequest.body);
+		return {
+			employeeId,
+		}
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {
