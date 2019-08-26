@@ -551,10 +551,20 @@ describe("EmployeeService", () => {
 
 	test("Throws an error when trying to delete a non-existing employee", async () => {
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "DELETE",
+				query: {},
+				params: {
+					id: 36
+				},
+				body: {}
+			}
 			await apiOperations.init(config);
 			
 			// try to create an employee which will have id 1
-			await apiOperations.executeOperation("delete-employee", 36);
+			await apiOperations.executeOperation("delete-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -574,18 +584,32 @@ describe("EmployeeService", () => {
 		let release = null;
 		let employeeId = -1;
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Spider man",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
 			await apiOperations.init(config);
 
 			// create an employee
-			employeeId = await apiOperations.executeOperation("post-employee", {
-				fullName: "Spider man"
-			});
+			employeeId = await apiOperations.executeOperation("post-employee", request);
 
 			//acquire a lock on employee file
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
 
 			// try to delete an employee
-			await apiOperations.executeOperation("delete-employee", employeeId);
+			request.body = {};
+			request.params.id = employeeId;
+			request.method = "DELETE";
+			await apiOperations.executeOperation("delete-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -608,22 +632,46 @@ describe("EmployeeService", () => {
 	});
 
 	test("Successfully creates an employee", async () => {
+		const request = {
+			path: "/employee",
+			headers: {},
+			method: "POST",
+			query: {},
+			params: {},
+			body: {
+				fullName: "Iron man",
+				age: 39,
+				salary: 10000,
+				cityCode: "AGD"
+			}
+		};
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Iron man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Super man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Wonder woman"
-		});
-
-		const employee = await apiOperations.executeOperation("get-employee", 3);
+		await apiOperations.executeOperation("post-employee", request);
+		request.body = {
+			fullName: "Super man",
+			age: 41,
+			salary: 9000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+		request.body = {
+			fullName: "Wonder woman",
+			age: 32,
+			salary: 9000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+		
+		request.method = "GET";
+		request.params.id = 3;
+		const employee = await apiOperations.executeOperation("get-employee", request);
 		
 		expect(employee).toEqual({
 			id: 3,
-			fullName: "Wonder woman"
+			fullName: "Wonder woman",
+			age: 32,
+			salary: 9000,
+			cityCode: "KPT"
 		});
 	});
 
