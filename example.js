@@ -11,7 +11,10 @@ async function main() {
 		query: {},
 		params: {},
 		body: {
-			fullName: "Fraser Crane"
+			fullName: "Fraser Crane",
+			age: 41,
+			salary: 5000,
+			cityCode: "STL"
 		}
 	}
 	await apiOperations.executeOperation("post-employee", request);

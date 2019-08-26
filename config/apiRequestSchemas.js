@@ -47,10 +47,33 @@ module.exports = Object.freeze([
 		"properties": {
 			"fullName": {
 				"type": "string",
+				"maxLength": 150
 			},
+			"age": {
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 75
+			},
+			"cityCode": {
+				"type": "string",
+				"maxLength": 3
+			},
+			"email": {
+				"type": "string",
+				"maxLength": 150,
+				"format": "email"
+			},
+			"salary": {
+				"type": "number",
+				"minimum": 10,
+				"maximum": 10000
+			}
 		},
 		"required": [
-			"fullName"
+			"fullName",
+			"age",
+			"cityCode",
+			"salary"
 		],
 	},
 	{
@@ -143,16 +166,39 @@ module.exports = Object.freeze([
 		"additionalProperties": false,
 		"properties": {
 			"id": {
-				"type": "string",
-				"format": "uuid",
+				"type": "integer",
+				"minimum": 1
 			},
 			"fullName": {
 				"type": "string",
+				"maxLength": 150
 			},
+			"age": {
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 75
+			},
+			"cityCode": {
+				"type": "string",
+				"maxLength": 3
+			},
+			"email": {
+				"type": "string",
+				"maxLength": 150,
+				"format": "email"
+			},
+			"salary": {
+				"type": "number",
+				"minimum": 10,
+				"maximum": 10000
+			}
 		},
 		"required": [
 			"id",
-			"fullName"
+			"fullName",
+			"age",
+			"cityCode",
+			"salary"
 		],
 	},
 	{
