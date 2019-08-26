@@ -18,6 +18,11 @@ async function main() {
 		}
 	}
 	await apiOperations.executeOperation("post-employee", request);
+
+	request.method = "GET";
+	request.params = {};
+	const employees = await apiOperations.executeOperation("get-employees", request);
+	console.log(employees);
 }
 
 main().then(() => {

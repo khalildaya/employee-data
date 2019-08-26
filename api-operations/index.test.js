@@ -728,7 +728,6 @@ describe("EmployeeService", () => {
 	});
 
 	test("Successfully updates an employee", async () => {
-
 		const request = {
 			path: "/employee",
 			headers: {},
@@ -794,26 +793,56 @@ describe("EmployeeService", () => {
 
 	test("Successfully deletes an employee", async () => {
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Iron man",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			};
 			await apiOperations.init(config);
-			await apiOperations.executeOperation("post-employee", {
-				fullName: "Iron man"
-			});
-			await apiOperations.executeOperation("post-employee", {
-				fullName: "Super man"
-			});
-			await apiOperations.executeOperation("post-employee", {
-				fullName: "Wonder woman"
-			});
-
-			await apiOperations.executeOperation("post-employee", {
-				fullName: "Thor"
-			});
-
-			const isDeleted = await apiOperations.executeOperation("delete-employee", 4);
+			await apiOperations.executeOperation("post-employee", request);
+			request.body = {
+				fullName: "Super man",
+				age: 41,
+				salary: 9000,
+				cityCode: "KPT"
+			}
+			await apiOperations.executeOperation("post-employee", request);
+			request.body = {
+				fullName: "Wonder woman",
+				age: 32,
+				salary: 9000,
+				cityCode: "KPT"
+			}
+			await apiOperations.executeOperation("post-employee", request);
+	
+			request.body = {
+				fullName: "Thor",
+				age: 44,
+				salary: 10000,
+				cityCode: "AGD"
+			}
+			await apiOperations.executeOperation("post-employee", request);
+			
+			request.method = "DELETE";
+			request.params.id = 4;
+			request.body = {}
+			const isDeleted = await apiOperations.executeOperation("delete-employee", request);
 			expect(isDeleted).toBeTruthy();
 			
-			// Try to read a non-existent employee and expect to get a not found error
-			await apiOperations.executeOperation("get-employee", 4);
+			request.method = "GET",
+			request.params.id = 4;
+			request.body = {};
+
+			// Try to retrieve a non-existent employee
+			await apiOperations.executeOperation("get-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -830,76 +859,97 @@ describe("EmployeeService", () => {
 	});
 
 	test("Successfully lists all employees", async () => {
-		const request = {
-			path: "/employee",
-			headers: {},
-			method: "POST",
-			query: {},
-			params: {},
-			body: {},
-		}
-		await apiOperations.init(config);
-		request.body = {
-			fullName: "Iron man",
-			age: 44,
-			salary: 6000,
-			cityCode: "MLB"
-		}
-		await apiOperations.executeOperation("post-employee", request);
-
-		request.body = {
-			fullName: "Super man",
-			age: 34,
-			salary: 8000,
-			cityCode: "KPT"
-		}
-		await apiOperations.executeOperation("post-employee", request);
-
-		request.body = {
-			fullName: "Wonder woman",
-			age: 31,
-			salary: 8000,
-			cityCode: "KPT"
-		}
-		await apiOperations.executeOperation("post-employee", request);
-
-		request.body = {
-			fullName: "Thor",
-			age: 39,
-			salary: 10000,
-			cityCode: "AGD"
-		}
-		await apiOperations.executeOperation("post-employee", request);
-
-		await apiOperations.executeOperation("delete-employee", 2);
-		
-		let employees = await apiOperations.executeOperation("get-employees");
-		expect(employees).toMatchObject([
-			{
-				id: 1,
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {},
+			}
+			await apiOperations.init(config);
+			request.body = {
 				fullName: "Iron man",
 				age: 44,
 				salary: 6000,
 				cityCode: "MLB"
-			},
-			{
-				id: 3,
+			}
+			await apiOperations.executeOperation("post-employee", request);
+			request.body = {
+				fullName: "Super man",
+				age: 34,
+				salary: 8000,
+				cityCode: "KPT"
+			}
+			await apiOperations.executeOperation("post-employee", request);
+	
+			request.body = {
+				fullName: "Wonder woman",
 				age: 31,
 				salary: 8000,
 				cityCode: "KPT"
-			},
-			{
-				id: 4,
+			}
+			await apiOperations.executeOperation("post-employee", request);
+	
+			request.body = {
 				fullName: "Thor",
 				age: 39,
 				salary: 10000,
 				cityCode: "AGD"
 			}
-		]);
-		await apiOperations.executeOperation("delete-employee", 1);
-		await apiOperations.executeOperation("delete-employee", 3);
-		await apiOperations.executeOperation("delete-employee", 4);
-		employees = await apiOperations.executeOperation("get-employees");
-		expect(employees).toMatchObject([]);
+			await apiOperations.executeOperation("post-employee", request);
+	
+			request.method = "DELETE";
+			request.params.id = 2;
+			request.body = {}
+			await apiOperations.executeOperation("delete-employee", request);
+
+			request.method = "GET";
+			request.params = {};
+			let employees = await apiOperations.executeOperation("get-employees", request);
+			expect(employees).toMatchObject([
+				{
+					id: 1,
+					fullName: "Iron man",
+					age: 44,
+					salary: 6000,
+					cityCode: "MLB"
+				},
+				{
+					id: 3,
+					age: 31,
+					salary: 8000,
+					cityCode: "KPT"
+				},
+				{
+					id: 4,
+					fullName: "Thor",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			]);
+
+			request.method = "DELETE";
+			request.params.id = 1;
+			request.body = {}
+			await apiOperations.executeOperation("delete-employee", request);
+			request.method = "DELETE";
+			request.params.id = 3;
+			request.body = {}
+			await apiOperations.executeOperation("delete-employee", request);
+			request.method = "DELETE";
+			request.params.id = 4;
+			request.body = {}
+			await apiOperations.executeOperation("delete-employee", request);
+			
+			request.method = "GET";
+			request.params = {};
+			employees = await apiOperations.executeOperation("get-employees", request);
+			expect(employees).toMatchObject([]);
+		} catch (error) {
+			console.log(JSON.stringify(error));
+		}
 	});
 });
