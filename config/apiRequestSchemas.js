@@ -65,7 +65,7 @@ module.exports = Object.freeze([
 			},
 			"salary": {
 				"type": "number",
-				"minimum": 10,
+				"minimum": 100,
 				"maximum": 10000
 			}
 		},
@@ -189,7 +189,7 @@ module.exports = Object.freeze([
 			},
 			"salary": {
 				"type": "number",
-				"minimum": 10,
+				"minimum": 100,
 				"maximum": 10000
 			}
 		},

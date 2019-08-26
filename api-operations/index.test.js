@@ -70,7 +70,7 @@ const apiRequestSchemas = [
 			},
 			"salary": {
 				"type": "number",
-				"minimum": 10,
+				"minimum": 100,
 				"maximum": 10000
 			}
 		},
@@ -195,7 +195,7 @@ const apiRequestSchemas = [
 			},
 			"salary": {
 				"type": "number",
-				"minimum": 10,
+				"minimum": 100,
 				"maximum": 10000
 			}
 		},
@@ -629,6 +629,248 @@ describe("EmployeeService", () => {
 					}
 				},
 				"statusCode": 500
+			});
+		}
+	});
+
+	test("Throws an error due to full name being longer than 150 chars when creating an employee", async () => {
+		let fullName = "";
+		for (let i = 0; i < 151; i++) {
+			fullName += `${i}`;
+		}
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName,
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
+			await apiOperations.init(config);
+
+			// try to create an employee
+			await apiOperations.executeOperation("post-employee", request);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"error": [{
+					"keyword": "maxLength",
+					"dataPath": ".body.fullName",
+					"schemaPath": "post-employee-body/properties/fullName/maxLength",
+					"params": {
+						"limit": 150
+					},
+					"message": "should NOT be longer than 150 characters"
+				}]
+			});
+		}
+	});
+
+	test("Throws an error due to age > 75 when creating an employee", async () => {
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Super man",
+					age: 76,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
+			await apiOperations.init(config);
+
+			// try to create an employee
+			await apiOperations.executeOperation("post-employee", request);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"error": [{
+					"keyword": "maximum",
+					"dataPath": ".body.age",
+					"schemaPath": "post-employee-body/properties/age/maximum",
+					"params": {
+						"comparison": "<=",
+						"limit": 75,
+						"exclusive": false
+					},
+					"message": "should be <= 75"
+				}]
+			});
+		}
+	});
+
+	test("Throws an error due to missing city code when creating an employee", async () => {
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Super man",
+					age: 44,
+					salary: 10000,
+				}
+			}
+			await apiOperations.init(config);
+
+			// try to create an employee
+			await apiOperations.executeOperation("post-employee", request);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"error": [{
+					"keyword": "required",
+					"dataPath": ".body",
+					"schemaPath": "post-employee-body/required",
+					"params": {
+						"missingProperty": "cityCode"
+					},
+					"message": "should have required property 'cityCode'"
+				}]
+			});
+		}
+	});
+
+	test("Throws an error due to missing id when updating an employee", async () => {
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Super man",
+					age: 33,
+					salary: 10000,
+				}
+			}
+			await apiOperations.init(config);
+
+			// try to create an employee
+			await apiOperations.executeOperation("put-employee", request);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"error": [{
+					"keyword": "required",
+					"dataPath": ".body",
+					"schemaPath": "put-employee-body/required",
+					"params": {
+						"missingProperty": "id"
+					},
+					"message": "should have required property 'id'"
+				}]
+			});
+		}
+	});
+
+	test("Throws an error due to salary being < 100 id when updating an employee", async () => {
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					id: 5,
+					fullName: "Super man",
+					age: 45,
+					cityCode: "ABC",
+					salary: 40,
+				}
+			}
+			await apiOperations.init(config);
+
+			// try to create an employee
+			await apiOperations.executeOperation("put-employee", request);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"error": [{
+					"keyword": "minimum",
+					"dataPath": ".body.salary",
+					"schemaPath": "put-employee-body/properties/salary/minimum",
+					"params": {
+						"comparison": ">=",
+						"limit": 100,
+						"exclusive": false
+					},
+					"message": "should be >= 100"
+				}]
+			});
+		}
+	});
+
+	test("Throws an error due to email being longer than 150 when updating an employee", async () => {
+		let email = "e";
+		for (let i = 0; i < 151; i++) {
+			email += `${i}`;
+		}
+		email += "@email.com";
+		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					id: 5,
+					fullName: "Super man",
+					age: 45,
+					cityCode: "ABC",
+					email,
+					salary: 400,
+				}
+			}
+			await apiOperations.init(config);
+
+			// try to create an employee
+			await apiOperations.executeOperation("put-employee", request);
+
+			// The code below should never execute since the above will throw an error
+			expect(false).toBeTruthy();
+		} catch (error) {
+			expect(error).toMatchObject({
+				"statusCode": 400,
+				"error": [{
+					"keyword": "maxLength",
+					"dataPath": ".body.email",
+					"schemaPath": "put-employee-body/properties/email/maxLength",
+					"params": {
+						"limit": 150
+					},
+					"message": "should NOT be longer than 150 characters"
+				}]
 			});
 		}
 	});
