@@ -98,7 +98,7 @@ async function createEmployee(apiRequest) {
 */
 async function retrieveEmployee(apiRequest) {
 	try {
-		return await employeeService.read(apiRequest.params.id);
+		return await employeeService.read(parseInt(apiRequest.params.id));
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {

@@ -100,8 +100,7 @@ module.exports = Object.freeze([
 				"type": "object",
 				"properties": {
 					"id": {
-						"type": "integer",
-						"minimum": 1
+						"type": "string",
 					},
 				},
 				"required": [
@@ -226,8 +225,7 @@ module.exports = Object.freeze([
 				"type": "object",
 				"properties": {
 					"id": {
-						"type": "integer",
-						"minimum": 1
+						"type": "string",
 					},
 				},
 				"required": [
