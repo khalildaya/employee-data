@@ -9,6 +9,6 @@ module.exports = Object.freeze({
 	OPERATION_NOT_FOUND: {
 		statusCode: STATUS_CODES.C404,
 		code: `${ERRORS_PREFIX}${NUMBERS.ONE}`,
-		message: "API operation nto found",
+		message: "API operation not found",
 	},
 });

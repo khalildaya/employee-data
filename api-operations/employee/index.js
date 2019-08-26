@@ -1,5 +1,7 @@
 "use strict";
-
+/**
+ * A module providing employee CRUD operations as plugins to the api operation core
+ */
 const EmployeeService = require("../../employee");
 const employeeService = new EmployeeService();
 const EMPLOYEE_ERRORS = require("../../employee/errors");
@@ -14,10 +16,13 @@ module.exports = Object.freeze({
 });
 
 async function init(config) {
-	const {
+	let {
 		apiRootPath, // API route path, default is "/"
 	} = config;
 
+	// Remove / from the apiRootPath so it works with api request validator
+	apiRootPath = apiRootPath.split("/").join("");
+	
 	// Initialize employee service
 	await employeeService.init(config);
 

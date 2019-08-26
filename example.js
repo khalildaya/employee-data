@@ -4,6 +4,17 @@ const config = require("./config");
 const apiOperations = require("./api-operations");
 async function main() {
 	await apiOperations.init(config);
+	const request = {
+		path: "/employee",
+		headers: {},
+		method: "POST",
+		query: {},
+		params: {},
+		body: {
+			fullName: "Fraser Crane"
+		}
+	}
+	await apiOperations.executeOperation("post-employee", request);
 	const e = new Employee();
 	await e.init(config);
 	await e.create({

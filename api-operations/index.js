@@ -1,12 +1,19 @@
 "use strict";
-
+/**
+ * A module that implements a plugin pattern where plugins are api operations and the core
+ * is a small engine that validates the incoming api request and executes the required api operation.
+ * employee CRUD operations are an example plugins
+ */
 const employeeOperations = require("./employee");
 const API_OPS_ERRORS = require("./errors");
+const ApiRequestValidator = require("./api-request-validator");
+
 const {
 	STATUS_CODES,
 } = require("../constants");
 
 let apiOperations = {};
+let apiRequestValidator = null;
 
 module.exports = Object.freeze({
 	init,
@@ -14,7 +21,14 @@ module.exports = Object.freeze({
 });
 
 async function init(config) {
-	
+	const {
+		schemas,
+		ajvOptions,
+	} = config.apiRequestValidatorConfig;
+
+	// Initialize api request validator
+	apiRequestValidator = new ApiRequestValidator(schemas, ajvOptions);
+
 	// Initialize employee operations
 	const employeeApiOperations = await employeeOperations.init(config);
 	apiOperations = Object.assign(apiOperations, employeeApiOperations);
@@ -35,18 +49,18 @@ async function executeOperation(operationId, request) {
 		});
 	}
 
-	/* try {
+	try {
 		// Validate incoming request
-		this.requestValidator.validate(request, requestValidationSchemaId);
+		apiRequestValidator.validate(operationId, request);
 	} catch (error) {
 		if (error.statusCode) {
 			throw error;
 		}
 		throw Object.assign({}, {
-			statusCode: RESPONSE_CODES.C400,
+			statusCode: STATUS_CODES.C400,
 			error,
 		});
-	} */
+	}
 
 	// Execute and api operation and return its result
 	return apiOperations[operationId](request);

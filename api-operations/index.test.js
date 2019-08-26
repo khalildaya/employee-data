@@ -64,7 +64,7 @@ describe("EmployeeService", () => {
 			fs.createFileSync(`${config.employeeDataFolder}/1.json`);
 			
 			// try to create an employee which will have id 1
-			await apiOperations.executeOperation("post-/employee", {
+			await apiOperations.executeOperation("post-employee", {
 				fullName: "Iron man"
 			});
 
@@ -93,7 +93,7 @@ describe("EmployeeService", () => {
 			release = await lockFile.lock(config.employeeIdsFile);
 
 			// try to create an employee
-			await apiOperations.executeOperation("post-/employee", {
+			await apiOperations.executeOperation("post-employee", {
 				fullName: "Spider man"
 			});
 
@@ -123,7 +123,7 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 			
 			// try to create an employee which will have id 1
-			await apiOperations.executeOperation("get-/employee", 34);
+			await apiOperations.executeOperation("get-employee", 34);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -144,7 +144,7 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 			
 			// try to update an employee with id 124
-			await apiOperations.executeOperation("put-/employee", {
+			await apiOperations.executeOperation("put-employee", {
 				id: 124,
 				fullName: "Spider man"
 			});
@@ -170,7 +170,7 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 
 			// create an employee
-			employeeId = await apiOperations.executeOperation("post-/employee", {
+			employeeId = await apiOperations.executeOperation("post-employee", {
 				fullName: "Spider man"
 			});
 
@@ -178,7 +178,7 @@ describe("EmployeeService", () => {
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
 
 			// try to update an employee
-			await apiOperations.executeOperation("put-/employee", {
+			await apiOperations.executeOperation("put-employee", {
 				id: employeeId,
 				fullName: "Bat man"
 			});
@@ -208,7 +208,7 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 			
 			// try to create an employee which will have id 1
-			await apiOperations.executeOperation("delete-/employee", 36);
+			await apiOperations.executeOperation("delete-employee", 36);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -231,7 +231,7 @@ describe("EmployeeService", () => {
 			await apiOperations.init(config);
 
 			// create an employee
-			employeeId = await apiOperations.executeOperation("post-/employee", {
+			employeeId = await apiOperations.executeOperation("post-employee", {
 				fullName: "Spider man"
 			});
 
@@ -239,7 +239,7 @@ describe("EmployeeService", () => {
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
 
 			// try to delete an employee
-			await apiOperations.executeOperation("delete-/employee", employeeId);
+			await apiOperations.executeOperation("delete-employee", employeeId);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -263,17 +263,17 @@ describe("EmployeeService", () => {
 
 	test("Successfully creates an employee", async () => {
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Iron man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Super man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Wonder woman"
 		});
 
-		const employee = await apiOperations.executeOperation("get-/employee", 3);
+		const employee = await apiOperations.executeOperation("get-employee", 3);
 		
 		expect(employee).toEqual({
 			id: 3,
@@ -283,21 +283,21 @@ describe("EmployeeService", () => {
 
 	test("Successfully reads an employee", async () => {
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Iron man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Super man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Wonder woman"
 		});
 
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Thor"
 		});
 
-		const employee = await apiOperations.executeOperation("get-/employee", 2);
+		const employee = await apiOperations.executeOperation("get-employee", 2);
 		
 		expect(employee).toEqual({
 			id: 2,
@@ -307,27 +307,27 @@ describe("EmployeeService", () => {
 
 	test("Successfully updates an employee", async () => {
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Iron man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Super man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Wonder woman"
 		});
 
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Thor"
 		});
 
-		const isUpdated = await apiOperations.executeOperation("put-/employee", {
+		const isUpdated = await apiOperations.executeOperation("put-employee", {
 			id: 1,
 			fullName: "Tony Starck"
 		});
 		expect(isUpdated).toBeTruthy();
 		
-		const employee = await apiOperations.executeOperation("get-/employee", 1);
+		const employee = await apiOperations.executeOperation("get-employee", 1);
 		expect(employee).toEqual({
 			id: 1,
 			fullName: "Tony Starck"
@@ -337,25 +337,25 @@ describe("EmployeeService", () => {
 	test("Successfully deletes an employee", async () => {
 		try {
 			await apiOperations.init(config);
-			await apiOperations.executeOperation("post-/employee", {
+			await apiOperations.executeOperation("post-employee", {
 				fullName: "Iron man"
 			});
-			await apiOperations.executeOperation("post-/employee", {
+			await apiOperations.executeOperation("post-employee", {
 				fullName: "Super man"
 			});
-			await apiOperations.executeOperation("post-/employee", {
+			await apiOperations.executeOperation("post-employee", {
 				fullName: "Wonder woman"
 			});
 
-			await apiOperations.executeOperation("post-/employee", {
+			await apiOperations.executeOperation("post-employee", {
 				fullName: "Thor"
 			});
 
-			const isDeleted = await apiOperations.executeOperation("delete-/employee", 4);
+			const isDeleted = await apiOperations.executeOperation("delete-employee", 4);
 			expect(isDeleted).toBeTruthy();
 			
 			// Try to read a non-existent employee and expect to get a not found error
-			await apiOperations.executeOperation("get-/employee", 4);
+			await apiOperations.executeOperation("get-employee", 4);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -373,23 +373,23 @@ describe("EmployeeService", () => {
 
 	test("Successfully lists all employees", async () => {
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Iron man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Super man"
 		});
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Wonder woman"
 		});
 
-		await apiOperations.executeOperation("post-/employee", {
+		await apiOperations.executeOperation("post-employee", {
 			fullName: "Thor"
 		});
 
-		await apiOperations.executeOperation("delete-/employee", 2);
+		await apiOperations.executeOperation("delete-employee", 2);
 		
-		let employees = await apiOperations.executeOperation("get-/employees");
+		let employees = await apiOperations.executeOperation("get-employees");
 		expect(employees).toMatchObject([
 			{
 				id: 1,
@@ -404,10 +404,10 @@ describe("EmployeeService", () => {
 				fullName: "Thor"
 			}
 		]);
-		await apiOperations.executeOperation("delete-/employee", 1);
-		await apiOperations.executeOperation("delete-/employee", 3);
-		await apiOperations.executeOperation("delete-/employee", 4);
-		employees = await apiOperations.executeOperation("get-/employees");
+		await apiOperations.executeOperation("delete-employee", 1);
+		await apiOperations.executeOperation("delete-employee", 3);
+		await apiOperations.executeOperation("delete-employee", 4);
+		employees = await apiOperations.executeOperation("get-employees");
 		expect(employees).toMatchObject([]);
 	});
 });

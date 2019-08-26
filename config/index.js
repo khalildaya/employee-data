@@ -18,4 +18,8 @@ module.exports = Object.freeze({
 	},
 	// Prefix for api routes
 	apiRootPath: process.env.API_ROOT_PATH || "/",
+
+	apiRequestValidatorConfig: {
+		schemas: require("./apiRequestSchemas"),
+	}
 });
