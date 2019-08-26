@@ -22,7 +22,7 @@ async function init(config) {
 
 	// Remove / from the apiRootPath so it works with api request validator
 	apiRootPath = apiRootPath.split("/").join("");
-	
+
 	// Initialize employee service
 	await employeeService.init(config);
 
@@ -42,13 +42,13 @@ async function init(config) {
 
 /**
  * Creates an employee.
- * @param {object} employee object holding employee properties
+ * @param {object} apiRequest incoming api request
  * @return {Promise} On success, returns a resolved promise holding employee's auto-incremented id.
  * On failure, throws an error.
 */
-async function createEmployee(employee) {
+async function createEmployee(apiRequest) {
 	try {
-		return await employeeService.create(employee);
+		return await employeeService.create(apiRequest.body);
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {
@@ -70,12 +70,12 @@ async function createEmployee(employee) {
 
 /**
  * Retrieves and employee
- * @param {number} employeeId id of employee to retrieve
+ * @param {object} apiRequest incoming api request
  * @return {object} returns employee data on success otherwise throws an error.
 */
-async function retrieveEmployee(employeeId) {
+async function retrieveEmployee(apiRequest) {
 	try {
-		return await employeeService.read(employeeId);
+		return await employeeService.read(apiRequest.params.id);
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {
@@ -91,13 +91,13 @@ async function retrieveEmployee(employeeId) {
 
 /**
  * Creates an employee.
- * @param {object} employee object holding employee properties
+ * @param {object} apiRequest incoming api request
  * @return {Promise} On success, returns a resolved promise holding employee's auto-incremented id.
  * On failure, throws an error.
 */
-async function updateEmployee(employee) {
+async function updateEmployee(apiRequest) {
 	try {
-		return await employeeService.update(employee);
+		return await employeeService.update(apiRequest.body);
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {
@@ -119,13 +119,13 @@ async function updateEmployee(employee) {
 
 /**
  * Deletes an employee.
- * @param {number} employeeId id of employee to delete
+ * @param {object} apiRequest incoming api request
  * @return {Promise} On success, returns resolved promise holding true.
  * On failure, returns a rejected promise.
 */
-async function deleteEmployee(employeeId) {
+async function deleteEmployee(apiRequest) {
 	try {
-		return await employeeService.delete(employeeId);
+		return await employeeService.delete(apiRequest.params.id);
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {

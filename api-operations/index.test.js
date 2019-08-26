@@ -3,6 +3,296 @@ const fs = require("fs-extra");
 const lockFile = require('proper-lockFile');
 const apiOperations = require("./index");
 
+"use strict";
+
+const apiRequestSchemas = [
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "post-employee",
+		"type": "object",
+		"properties": {
+			"route": {
+				"type": "object",
+				"properties": {
+					"path": {
+						"type": "string",
+						"const": "/employee",
+					},
+				},
+				"required": [
+					"path",
+				],
+			},
+			"headers": {
+				"type": "object",
+			},
+			"params": {
+				"type": "object",
+			},
+			"body": {
+				"$ref": "post-employee-body",
+			},
+			"method": {
+				"type": "string",
+				"const": "POST",
+			},
+		},
+		"required": [
+			"headers",
+			"body",
+			"params",
+			"method",
+		],
+	},
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "post-employee-body",
+		"type": "object",
+		"additionalProperties": false,
+		"properties": {
+			"fullName": {
+				"type": "string",
+				"maxLength": 150
+			},
+			"age": {
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 75
+			},
+			"cityCode": {
+				"type": "string",
+				"maxLength": 3
+			},
+			"email": {
+				"type": "string",
+				"maxLength": 150,
+				"format": "email"
+			},
+			"salary": {
+				"type": "number",
+				"minimum": 10,
+				"maximum": 10000
+			}
+		},
+		"required": [
+			"fullName",
+			"age",
+			"cityCode",
+			"salary"
+		],
+	},
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "delete-employee",
+		"type": "object",
+		"properties": {
+			"route": {
+				"type": "object",
+				"properties": {
+					"path": {
+						"type": "string",
+						"const": "/employee/:id",
+					},
+				},
+				"required": [
+					"path",
+				],
+			},
+			"headers": {
+				"type": "object",
+			},
+			"params": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"minimum": 1
+					},
+				},
+				"required": [
+					"id",
+				],
+			},
+			"body": {
+			},
+			"method": {
+				"type": "string",
+				"const": "DELETE",
+			},
+		},
+		"required": [
+			"headers",
+			"body",
+			"params",
+			"method",
+		],
+	},
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "put-employee",
+		"type": "object",
+		"properties": {
+			"route": {
+				"type": "object",
+				"properties": {
+					"path": {
+						"type": "string",
+						"const": "/employee",
+					},
+				},
+				"required": [
+					"path",
+				],
+			},
+			"headers": {
+				"type": "object",
+			},
+			"params": {
+				"type": "object",
+			},
+			"body": {
+				"$ref": "put-employee-body",
+			},
+			"method": {
+				"type": "string",
+				"const": "PUT",
+			},
+		},
+		"required": [
+			"headers",
+			"body",
+			"params",
+			"method",
+		],
+	},
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "put-employee-body",
+		"type": "object",
+		"additionalProperties": false,
+		"properties": {
+			"id": {
+				"type": "integer",
+				"minimum": 1
+			},
+			"fullName": {
+				"type": "string",
+				"maxLength": 150
+			},
+			"age": {
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 75
+			},
+			"cityCode": {
+				"type": "string",
+				"maxLength": 3
+			},
+			"email": {
+				"type": "string",
+				"maxLength": 150,
+				"format": "email"
+			},
+			"salary": {
+				"type": "number",
+				"minimum": 10,
+				"maximum": 10000
+			}
+		},
+		"required": [
+			"id",
+			"fullName",
+			"age",
+			"cityCode",
+			"salary"
+		],
+	},
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "get-employee",
+		"type": "object",
+		"properties": {
+			"route": {
+				"type": "object",
+				"properties": {
+					"path": {
+						"type": "string",
+						"const": "/employee/:id",
+					},
+				},
+				"required": [
+					"path",
+				],
+			},
+			"headers": {
+				"type": "object",
+			},
+			"params": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"minimum": 1
+					},
+				},
+				"required": [
+					"id",
+				],
+			},
+			"body": {
+			},
+			"method": {
+				"type": "string",
+				"const": "GET",
+			},
+		},
+		"required": [
+			"headers",
+			"body",
+			"params",
+			"method",
+		],
+	},
+	{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"$id": "get-employees",
+		"type": "object",
+		"properties": {
+			"route": {
+				"type": "object",
+				"properties": {
+					"path": {
+						"type": "string",
+						"const": "/employees",
+					},
+				},
+				"required": [
+					"path",
+				],
+			},
+			"headers": {
+				"type": "object",
+			},
+			"params": {
+				"type": "object",
+			},
+			"body": {
+				"type": "object",
+			},
+			"method": {
+				"type": "string",
+				"const": "GET",
+			},
+		},
+		"required": [
+			"headers",
+			"body",
+			"params",
+			"method",
+		],
+	},
+];
+
 const config = {
 	employeeDataFolder: `${__dirname}/../api-test-data/employees`,
 	employeeIdsFile: `${__dirname}/../api-test-data/ids.json`,
@@ -11,6 +301,9 @@ const config = {
 		retries: 0, // try 5 times to acquire a lock on a locked resource
 	},
 	apiRootPath: "/",
+	apiRequestValidatorConfig: {
+		schemas: apiRequestSchemas,
+	}
 };
 
 describe("EmployeeService", () => {
@@ -58,15 +351,26 @@ describe("EmployeeService", () => {
 
 	test("Throws an error when creating an employee with an already existing id", async () => {
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Thor",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
 			await apiOperations.init(config);
 
 			// Simulate creating an employee
 			fs.createFileSync(`${config.employeeDataFolder}/1.json`);
 			
 			// try to create an employee which will have id 1
-			await apiOperations.executeOperation("post-employee", {
-				fullName: "Iron man"
-			});
+			await apiOperations.executeOperation("post-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -87,15 +391,26 @@ describe("EmployeeService", () => {
 	test("Throws an error when unable to acquire a lock while executing create employee API operation", async () => {
 		let release = null;
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Thor",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
 			await apiOperations.init(config);
 
 			//acquire a lock on employee ids file
 			release = await lockFile.lock(config.employeeIdsFile);
 
 			// try to create an employee
-			await apiOperations.executeOperation("post-employee", {
-				fullName: "Spider man"
-			});
+			await apiOperations.executeOperation("post-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -120,10 +435,20 @@ describe("EmployeeService", () => {
 
 	test("Throws an error when trying to retrieve a non-existing employee", async () => {
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "GET",
+				query: {},
+				params: {
+					id: 34,
+				},
+				body: {}
+			}
 			await apiOperations.init(config);
 			
 			// try to create an employee which will have id 1
-			await apiOperations.executeOperation("get-employee", 34);
+			await apiOperations.executeOperation("get-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -141,13 +466,24 @@ describe("EmployeeService", () => {
 
 	test("Throws an error when trying to update a non-existing employee", async () => {
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "PUT",
+				query: {},
+				params: {},
+				body: {
+					id: 124,
+					fullName: "Spider man",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
 			await apiOperations.init(config);
 			
 			// try to update an employee with id 124
-			await apiOperations.executeOperation("put-employee", {
-				id: 124,
-				fullName: "Spider man"
-			});
+			await apiOperations.executeOperation("put-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -167,21 +503,31 @@ describe("EmployeeService", () => {
 		let release = null;
 		let employeeId = -1;
 		try {
+			const request = {
+				path: "/employee",
+				headers: {},
+				method: "POST",
+				query: {},
+				params: {},
+				body: {
+					fullName: "Spider man",
+					age: 39,
+					salary: 10000,
+					cityCode: "AGD"
+				}
+			}
 			await apiOperations.init(config);
 
 			// create an employee
-			employeeId = await apiOperations.executeOperation("post-employee", {
-				fullName: "Spider man"
-			});
+			employeeId = await apiOperations.executeOperation("post-employee", request);
 
 			//acquire a lock on employee file
 			release = await lockFile.lock(`${config.employeeDataFolder}/${employeeId}.json`);
 
+			request.body.id = employeeId;
+			request.method = "PUT";
 			// try to update an employee
-			await apiOperations.executeOperation("put-employee", {
-				id: employeeId,
-				fullName: "Bat man"
-			});
+			await apiOperations.executeOperation("put-employee", request);
 
 			// The code below should never execute since the above will throw an error
 			expect(false).toBeTruthy();
@@ -372,20 +718,46 @@ describe("EmployeeService", () => {
 	});
 
 	test("Successfully lists all employees", async () => {
+		const request = {
+			path: "/employee",
+			headers: {},
+			method: "POST",
+			query: {},
+			params: {},
+			body: {},
+		}
 		await apiOperations.init(config);
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Iron man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Super man"
-		});
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Wonder woman"
-		});
+		request.body = {
+			fullName: "Iron man",
+			age: 44,
+			salary: 6000,
+			cityCode: "MLB"
+		}
+		await apiOperations.executeOperation("post-employee", request);
 
-		await apiOperations.executeOperation("post-employee", {
-			fullName: "Thor"
-		});
+		request.body = {
+			fullName: "Super man",
+			age: 34,
+			salary: 8000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+
+		request.body = {
+			fullName: "Wonder woman",
+			age: 31,
+			salary: 8000,
+			cityCode: "KPT"
+		}
+		await apiOperations.executeOperation("post-employee", request);
+
+		request.body = {
+			fullName: "Thor",
+			age: 39,
+			salary: 10000,
+			cityCode: "AGD"
+		}
+		await apiOperations.executeOperation("post-employee", request);
 
 		await apiOperations.executeOperation("delete-employee", 2);
 		
@@ -393,15 +765,23 @@ describe("EmployeeService", () => {
 		expect(employees).toMatchObject([
 			{
 				id: 1,
-				fullName: "Iron man"
+				fullName: "Iron man",
+				age: 44,
+				salary: 6000,
+				cityCode: "MLB"
 			},
 			{
 				id: 3,
-				fullName: "Wonder woman"
+				age: 31,
+				salary: 8000,
+				cityCode: "KPT"
 			},
 			{
 				id: 4,
-				fullName: "Thor"
+				fullName: "Thor",
+				age: 39,
+				salary: 10000,
+				cityCode: "AGD"
 			}
 		]);
 		await apiOperations.executeOperation("delete-employee", 1);
