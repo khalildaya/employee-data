@@ -120,7 +120,8 @@ async function retrieveEmployee(apiRequest) {
 */
 async function updateEmployee(apiRequest) {
 	try {
-		return await employeeService.update(apiRequest.body);
+		await employeeService.update(apiRequest.body);
+		return apiRequest.body;
 	} catch (error) {
 		// Add appropriate status code to error response
 		if (error) {
