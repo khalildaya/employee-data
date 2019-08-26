@@ -1,5 +1,4 @@
 require("dotenv").config();
-const Employee = require("./employee");
 const config = require("./config");
 const apiOperations = require("./api-operations");
 async function main() {

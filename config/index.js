@@ -2,10 +2,10 @@
 
 module.exports = Object.freeze({
 	// employee data folder
-	employeeDataFolder: `${__dirname}/../${process.env.EMPLOYEE_DATA_FOLDER}`,
+	employeeDataFolder: `${__dirname}/../${process.env.EMPLOYEE_DATA_FOLDER || "data/employees"}`,
 
 	// file where last auto-increment id is stored
-	employeeIdsFile: `${__dirname}/../${process.env.EMPLOYEE_IDS_FILE}`,
+	employeeIdsFile: `${__dirname}/../${process.env.EMPLOYEE_IDS_FILE || "data/ids.json"}`,
 
 	// Setting a default lock file options
 	// more details at https://www.npmjs.com/package/proper-lockfile#lockfile-options
@@ -21,5 +21,6 @@ module.exports = Object.freeze({
 
 	apiRequestValidatorConfig: {
 		schemas: require("./apiRequestSchemas"),
-	}
+	},
+	apiPort: process.env.PORT || 3000,
 });

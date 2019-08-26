@@ -18,6 +18,7 @@ let apiRequestValidator = null;
 module.exports = Object.freeze({
 	init,
 	executeOperation,
+	ops: apiOperations,
 });
 
 async function init(config) {
